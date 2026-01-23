@@ -1,0 +1,8 @@
+{
+  "name": "LifeOS",
+  "description": "A premium, Gen-Z friendly personal life management dashboard to track tasks, money, memories, and more in one unified interface.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
