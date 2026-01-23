@@ -79,6 +79,58 @@ export interface JournalEntry {
   tags: string[];
 }
 
+// Diary Entry types (for Personal Diary / Memory Vault)
+export interface DiaryImage {
+  publicId: string;
+  url: string;
+  width?: number;
+  height?: number;
+  format?: string;
+}
+
+export interface DiaryEntry {
+  _id: string;
+  userId: string;
+  title?: string;
+  content: string;
+  mood: 'calm' | 'happy' | 'energetic' | 'sad' | 'nostalgic' | 'stressed' | 'grateful' | 'neutral';
+  images: DiaryImage[];
+  entryDate: string;
+  isPinned: boolean;
+  isArchived: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateDiaryEntryData {
+  title?: string;
+  content: string;
+  mood?: 'calm' | 'happy' | 'energetic' | 'sad' | 'nostalgic' | 'stressed' | 'grateful' | 'neutral';
+  entryDate?: string;
+  isPinned?: boolean;
+  images?: File[];
+}
+
+export interface DiaryEntriesResponse {
+  success: boolean;
+  message: string;
+  data: {
+    entries: DiaryEntry[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      pages: number;
+    };
+  };
+}
+
+export interface DiaryEntryResponse {
+  success: boolean;
+  message: string;
+  data: DiaryEntry;
+}
+
 export interface Milestone {
   id: string;
   title: string;

@@ -8,6 +8,14 @@ export const AUTH_ENDPOINTS = {
   PROFILE: '/auth/profile'
 };
 
+// Diary endpoints
+export const DIARY_ENDPOINTS = {
+  CREATE: '/diary',
+  GET_ALL: '/diary',
+  GET_BY_ID: (id: string) => `/diary/${id}`,
+  DELETE: (id: string) => `/diary/${id}`
+};
+
 // Local storage keys
 export const STORAGE_KEYS = {
   AUTH_TOKEN: 'lifeos_auth_token',
