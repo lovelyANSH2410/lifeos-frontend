@@ -126,6 +126,19 @@ export const getProfile = async (): Promise<{ success: boolean; message: string;
 };
 
 /**
+ * Update user profile
+ */
+export const updateProfile = async (updateData: { name?: string; currency?: string }): Promise<{ success: boolean; message: string; data: User }> => {
+  return await apiRequest<{ success: boolean; message: string; data: User }>(
+    AUTH_ENDPOINTS.UPDATE_PROFILE,
+    {
+      method: 'PATCH',
+      body: JSON.stringify(updateData),
+    }
+  );
+};
+
+/**
  * Logout user
  */
 export const logout = (): void => {

@@ -29,12 +29,14 @@ import VaultView from '@/components/features/VaultView';
 import TravelView from '@/components/features/TravelView';
 import SubscriptionsView from '@/components/features/SubscriptionsView';
 import JournalView from '@/components/features/JournalView';
+import ProfileModal from './components/features/ProfileModal';
 
 const App: React.FC = () => {
   const { isAuthenticated, isLoading, user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>(Tab.Dashboard);
   const [currentPlan, setCurrentPlan] = useState<Plan>('Couple');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   // Show loading state
   if (isLoading) {
@@ -97,7 +99,10 @@ const App: React.FC = () => {
         </nav>
         
         <div className="p-4 border-t border-white/5 space-y-2">
-          <button className={`flex items-center w-full p-2 rounded-xl hover:bg-white/5 transition-colors ${!isSidebarOpen && 'justify-center'}`}>
+          <button 
+            onClick={() => setIsProfileOpen(true)}
+            className={`flex items-center w-full p-2 rounded-xl hover:bg-white/5 transition-colors ${!isSidebarOpen && 'justify-center'}`}
+          >
             <div className="w-9 h-9 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 p-[2px]">
                <div className="w-full h-full rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center border-2 border-[#0F131F]">
                  <span className="text-white text-xs font-bold">
@@ -134,7 +139,7 @@ const App: React.FC = () => {
         <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-teal-900/10 rounded-full blur-[120px] pointer-events-none"></div>
 
         {/* Glass Header */}
-        <header className="h-16 flex items-center justify-between px-6 md:px-8 border-b border-white/5 z-30 shrink-0 glass-panel sticky top-0">
+        <header className="h-16 flex items-center justify-between px-6 md:px-8 border-b border-white/5 z-40 shrink-0 glass-panel sticky top-0">
           <div className="flex items-center gap-4 flex-1">
              <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="md:hidden p-2 text-gray-400 hover:text-white"><Menu className="w-5 h-5" /></button>
              <div className="relative max-w-sm w-full hidden sm:block group">
@@ -176,6 +181,12 @@ const App: React.FC = () => {
           </div>
         </main>
       </div>
+
+      {/* Profile Modal */}
+      <ProfileModal
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
+      />
     </div>
   );
 };

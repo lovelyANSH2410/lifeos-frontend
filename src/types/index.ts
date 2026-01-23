@@ -61,13 +61,76 @@ export interface Trip {
   image: string;
 }
 
+// Subscription types (for Subscriptions Manager)
 export interface Subscription {
-  id: string;
+  _id: string;
+  userId: string;
   name: string;
+  provider?: string;
+  icon?: string;
   amount: number;
+  currency: string;
+  billingCycle: 'monthly' | 'yearly';
   renewalDate: string;
-  category: string;
-  autoRenew: boolean;
+  lastUsedAt?: string;
+  category: 'entertainment' | 'productivity' | 'cloud' | 'utilities' | 'education' | 'other';
+  status: 'active' | 'paused' | 'cancelled';
+  notes?: string;
+  isAutoRenew: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateSubscriptionData {
+  name: string;
+  provider?: string;
+  icon?: string;
+  amount: number;
+  currency?: string;
+  billingCycle?: 'monthly' | 'yearly';
+  renewalDate: string;
+  lastUsedAt?: string;
+  category?: 'entertainment' | 'productivity' | 'cloud' | 'utilities' | 'education' | 'other';
+  status?: 'active' | 'paused' | 'cancelled';
+  notes?: string;
+  isAutoRenew?: boolean;
+}
+
+export interface SubscriptionSummary {
+  monthlyTotal: number;
+  activeSubscriptionsCount: number;
+  upcomingRenewals: Array<{
+    _id: string;
+    name: string;
+    amount: number;
+    currency: string;
+    renewalDate: string;
+    billingCycle: string;
+  }>;
+  optimizationTips: Array<{
+    subscriptionId: string;
+    subscriptionName: string;
+    suggestion: string;
+    potentialSavings: number;
+  }>;
+}
+
+export interface SubscriptionResponse {
+  success: boolean;
+  message: string;
+  data: Subscription;
+}
+
+export interface SubscriptionsResponse {
+  success: boolean;
+  message: string;
+  data: Subscription[];
+}
+
+export interface SubscriptionSummaryResponse {
+  success: boolean;
+  message: string;
+  data: SubscriptionSummary;
 }
 
 export interface JournalEntry {
@@ -154,6 +217,7 @@ export interface User {
   email: string;
   role: string;
   isActive: boolean;
+  currency?: string;
   lastLogin?: string;
   createdAt?: string;
   updatedAt?: string;

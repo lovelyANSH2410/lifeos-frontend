@@ -9,6 +9,7 @@ interface AuthContextType {
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (credentials: RegisterCredentials) => Promise<void>;
   logout: () => void;
+  refreshUser: () => Promise<void>;
   error: string | null;
   clearError: () => void;
 }
@@ -44,6 +45,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           try {
             const profile = await authService.getProfile();
             setUser(profile.data);
+            // Update stored user with latest data
+            authService.setStoredUser(profile.data);
           } catch {
             // Token invalid, clear storage
             authService.logout();
@@ -104,6 +107,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setError(null);
   };
 
+  const refreshUser = async () => {
+    try {
+      const profile = await authService.getProfile();
+      setUser(profile.data);
+      authService.setStoredUser(profile.data);
+    } catch (err) {
+      console.error('Error refreshing user:', err);
+    }
+  };
+
   const value: AuthContextType = {
     user,
     isLoading,
@@ -111,6 +124,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     register,
     logout,
+    refreshUser,
     error,
     clearError,
   };

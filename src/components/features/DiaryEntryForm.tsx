@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Upload, Image as ImageIcon, Calendar, Type, FileText, Smile } from 'lucide-react';
 import type { CreateDiaryEntryData, DiaryEntry } from '@/types';
 
@@ -131,8 +132,8 @@ const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
     }
   };
 
-  return (
-    <div className="inset-0 backdrop-blur-sm z-[9999] flex items-center mt-10 justify-center p-4">
+  const modalContent = (
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[10000] flex items-center justify-center p-4">
       <div className="bg-[#0F131F] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[85vh] overflow-y-auto custom-scrollbar shadow-2xl">
         <div className="sticky top-0 bg-[#0F131F] border-b border-white/10 p-6 flex items-center justify-between z-10">
           <h2 className="text-2xl font-bold text-white">New Memory</h2>
@@ -300,6 +301,10 @@ const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
       </div>
     </div>
   );
+
+  if (!isOpen) return null;
+
+  return createPortal(modalContent, document.body);
 };
 
 export default DiaryEntryForm;
