@@ -27,6 +27,35 @@ export const SUBSCRIPTION_ENDPOINTS = {
   SUMMARY: '/subscriptions/summary'
 };
 
+// Trip endpoints
+export const TRIP_ENDPOINTS = {
+  CREATE: '/trips',
+  GET_ALL: '/trips',
+  GET_BY_ID: (id: string) => `/trips/${id}`,
+  UPDATE: (id: string) => `/trips/${id}`,
+  DELETE: (id: string) => `/trips/${id}`,
+  SUMMARY: '/trips/summary'
+};
+
+// Vault endpoints
+export const VAULT_ENDPOINTS = {
+  CREATE: '/vault',
+  GET_ALL: '/vault',
+  GET_BY_ID: (id: string) => `/vault/${id}`,
+  REVEAL: (id: string) => `/vault/${id}/reveal`,
+  UPDATE: (id: string) => `/vault/${id}`,
+  DELETE: (id: string) => `/vault/${id}`
+};
+
+// Vault Documents endpoints
+export const VAULT_DOCUMENT_ENDPOINTS = {
+  CREATE: '/vault/documents',
+  GET_ALL: '/vault/documents',
+  GET_BY_ID: (id: string) => `/vault/documents/${id}`,
+  GET_SIGNED_URL: (id: string) => `/vault/documents/${id}/url`,
+  DELETE: (id: string) => `/vault/documents/${id}`
+};
+
 // Local storage keys
 export const STORAGE_KEYS = {
   AUTH_TOKEN: 'lifeos_auth_token',

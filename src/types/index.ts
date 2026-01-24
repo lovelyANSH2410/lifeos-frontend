@@ -30,6 +30,47 @@ export interface DateIdea {
   image?: string;
 }
 
+// Vault types (for Secure Vault - Credentials)
+export interface VaultItem {
+  _id: string;
+  userId: string;
+  title: string;
+  username?: string;
+  category: 'credentials' | 'bank' | 'utility' | 'other';
+  notes?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateVaultItemData {
+  title: string;
+  username?: string;
+  password: string;
+  category?: 'credentials' | 'bank' | 'utility' | 'other';
+  notes?: string;
+}
+
+export interface VaultItemResponse {
+  success: boolean;
+  message: string;
+  data: VaultItem;
+}
+
+export interface VaultItemsResponse {
+  success: boolean;
+  message: string;
+  data: VaultItem[];
+}
+
+export interface RevealPasswordResponse {
+  success: boolean;
+  message: string;
+  data: {
+    password: string;
+  };
+}
+
+// Legacy Credential type (for backward compatibility if needed)
 export interface Credential {
   id: string;
   service: string;
@@ -37,6 +78,59 @@ export interface Credential {
   category: 'social' | 'finance' | 'work';
 }
 
+// Vault Document types (for Secure Vault - Documents)
+export interface VaultDocumentFile {
+  publicId: string;
+  url?: string;
+  format?: string;
+  size?: number;
+}
+
+export interface VaultDocument {
+  _id: string;
+  userId: string;
+  title: string;
+  category: 'identity' | 'insurance' | 'finance' | 'medical' | 'property' | 'education' | 'other';
+  file: VaultDocumentFile;
+  issuedDate?: string;
+  expiryDate?: string;
+  notes?: string;
+  isArchived: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateVaultDocumentData {
+  title: string;
+  category?: 'identity' | 'insurance' | 'finance' | 'medical' | 'property' | 'education' | 'other';
+  issuedDate?: string;
+  expiryDate?: string;
+  notes?: string;
+  file: File;
+}
+
+export interface VaultDocumentResponse {
+  success: boolean;
+  message: string;
+  data: VaultDocument;
+}
+
+export interface VaultDocumentsResponse {
+  success: boolean;
+  message: string;
+  data: VaultDocument[];
+}
+
+export interface SignedUrlResponse {
+  success: boolean;
+  message: string;
+  data: {
+    signedUrl: string;
+    expiresIn: number;
+  };
+}
+
+// Legacy Document type (for backward compatibility if needed)
 export interface Document {
   id: string;
   name: string;
@@ -52,13 +146,81 @@ export interface MoneyItem {
   status?: 'pending' | 'completed';
 }
 
+// Trip types (for Travel Plans)
+export interface TripLocation {
+  city: string;
+  country: string;
+}
+
+export interface TripCoverImage {
+  publicId?: string;
+  url?: string;
+}
+
+export interface TripBudget {
+  estimated?: number;
+  currency?: string;
+}
+
 export interface Trip {
-  id: string;
-  destination: string;
-  dates: string;
-  status: 'upcoming' | 'past' | 'planning';
-  budget: number;
-  image: string;
+  _id: string;
+  userId: string;
+  title: string;
+  location: TripLocation;
+  startDate: string;
+  endDate: string;
+  coverImage?: TripCoverImage;
+  status: 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
+  budget?: TripBudget;
+  notes?: string;
+  isPinned: boolean;
+  daysToGo?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateTripData {
+  title: string;
+  city: string;
+  country: string;
+  startDate: string;
+  endDate: string;
+  budget?: TripBudget;
+  notes?: string;
+  isPinned?: boolean;
+  coverImage?: File;
+}
+
+export interface TripSummary {
+  upcomingCount: number;
+  completedCount: number;
+  nextTrip: Trip | null;
+}
+
+export interface TripResponse {
+  success: boolean;
+  message: string;
+  data: Trip;
+}
+
+export interface TripsResponse {
+  success: boolean;
+  message: string;
+  data: {
+    trips: Trip[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      pages: number;
+    };
+  };
+}
+
+export interface TripSummaryResponse {
+  success: boolean;
+  message: string;
+  data: TripSummary;
 }
 
 // Subscription types (for Subscriptions Manager)
