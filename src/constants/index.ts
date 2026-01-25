@@ -66,6 +66,76 @@ export const IDEA_ENDPOINTS = {
   REFLECT: '/ideas/reflect'
 };
 
+// Gifting endpoints
+export const GIFTING_ENDPOINTS = {
+  CREATE: '/gifting',
+  GET_ALL: '/gifting',
+  GET_BY_ID: (id: string) => `/gifting/${id}`,
+  UPDATE: (id: string) => `/gifting/${id}`,
+  DELETE: (id: string) => `/gifting/${id}`
+};
+
+// Watch endpoints
+export const WATCH_ENDPOINTS = {
+  CREATE: '/watch',
+  GET_ALL: '/watch',
+  GET_BY_ID: (id: string) => `/watch/${id}`,
+  UPDATE: (id: string) => `/watch/${id}`,
+  UPDATE_PROGRESS: (id: string) => `/watch/${id}/progress`,
+  DELETE: (id: string) => `/watch/${id}`
+};
+
+// Money Management endpoints
+export const INCOME_ENDPOINTS = {
+  CREATE: '/income',
+  GET_ALL: '/income',
+  GET_MONTHLY_SUMMARY: '/income/monthly-summary',
+  DELETE: (id: string) => `/income/${id}`
+};
+
+export const FIXED_EXPENSE_ENDPOINTS = {
+  CREATE: '/fixed-expenses',
+  GET_ALL: '/fixed-expenses',
+  GET_BY_ID: (id: string) => `/fixed-expenses/${id}`,
+  UPDATE: (id: string) => `/fixed-expenses/${id}`,
+  DELETE: (id: string) => `/fixed-expenses/${id}`
+};
+
+export const TRANSACTION_ENDPOINTS = {
+  CREATE: '/transactions',
+  GET_ALL: '/transactions',
+  GET_MONTHLY: '/transactions/monthly'
+};
+
+export const FUND_ENDPOINTS = {
+  CREATE: '/funds',
+  GET_ALL: '/funds',
+  GET_BY_ID: (id: string) => `/funds/${id}`,
+  UPDATE: (id: string) => `/funds/${id}`,
+  ADD: (id: string) => `/funds/${id}/add`,
+  WITHDRAW: (id: string) => `/funds/${id}/withdraw`
+};
+
+export const DEBT_ENDPOINTS = {
+  CREATE: '/debts',
+  GET_ALL: '/debts',
+  GET_BY_ID: (id: string) => `/debts/${id}`,
+  SETTLE: (id: string) => `/debts/${id}/settle`,
+  DELETE: (id: string) => `/debts/${id}`
+};
+
+export const WISHLIST_ENDPOINTS = {
+  CREATE: '/wishlist',
+  GET_ALL: '/wishlist',
+  GET_BY_ID: (id: string) => `/wishlist/${id}`,
+  UPDATE: (id: string) => `/wishlist/${id}`,
+  DELETE: (id: string) => `/wishlist/${id}`
+};
+
+export const MONEY_OVERVIEW_ENDPOINTS = {
+  GET_MONTHLY: '/money/overview'
+};
+
 // Local storage keys
 export const STORAGE_KEYS = {
   AUTH_TOKEN: 'lifeos_auth_token',

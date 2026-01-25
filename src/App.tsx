@@ -23,7 +23,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import SidebarItem from '@/components/common/SidebarItem';
 import Login from '@/components/auth/Login';
 import Dashboard from '@/components/features/Dashboard';
-import EntertainmentView from '@/components/features/EntertainmentView';
+import WatchView from '@/components/features/WatchView';
 import DateNightView from '@/components/features/DateNightView';
 import MoneyView from '@/components/features/MoneyView';
 import VaultView from '@/components/features/VaultView';
@@ -173,7 +173,7 @@ const App: React.FC = () => {
           <div className="max-w-7xl mx-auto p-6 md:p-8 lg:p-10">
             <div className="animate-enter">
               {activeTab === Tab.Dashboard && <Dashboard setActiveTab={setActiveTab} />}
-              {activeTab === Tab.Entertainment && <EntertainmentView />}
+              {activeTab === Tab.Entertainment && <WatchView />}
               {activeTab === Tab.Dates && <DateNightView />}
               {activeTab === Tab.Money && <MoneyView />}
               {activeTab === Tab.Vault && <VaultView />}

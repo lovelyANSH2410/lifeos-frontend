@@ -12,6 +12,68 @@ export enum Tab {
 
 export type Plan = 'Free' | 'Couple' | 'Pro';
 
+// Watch types (for Movies & Series)
+export interface WatchItemPoster {
+  publicId: string;
+  url: string;
+  width?: number;
+  height?: number;
+  format?: string;
+}
+
+export interface WatchItem {
+  _id: string;
+  userId: string;
+  title: string;
+  description?: string;
+  type: 'movie' | 'series' | 'documentary' | 'anime' | 'short';
+  status: 'planned' | 'watching' | 'watched' | 'dropped';
+  platforms?: string[];
+  isFavorite: boolean;
+  rating?: number; // 1-5, only when status is 'watched'
+  moodTags?: string[];
+  notes?: string;
+  poster?: WatchItemPoster;
+  currentSeason?: number; // Only for series
+  currentEpisode?: number; // Only for series
+  lastWatchedAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateWatchItemData {
+  title: string;
+  description?: string;
+  type: 'movie' | 'series' | 'documentary' | 'anime' | 'short';
+  status?: 'planned' | 'watching' | 'watched' | 'dropped';
+  platforms?: string[];
+  isFavorite?: boolean;
+  rating?: number; // 1-5, only when status is 'watched'
+  moodTags?: string[];
+  notes?: string;
+  poster?: File;
+  currentSeason?: number; // Only for series
+  currentEpisode?: number; // Only for series
+}
+
+export interface UpdateWatchProgressData {
+  currentSeason?: number;
+  currentEpisode?: number;
+}
+
+export interface WatchItemResponse {
+  success: boolean;
+  message: string;
+  data: WatchItem;
+}
+
+export interface WatchItemsResponse {
+  success: boolean;
+  message: string;
+  data: WatchItem[];
+}
+
+// Legacy Movie interface (for backward compatibility if needed)
 export interface Movie {
   id: string;
   title: string;
@@ -21,6 +83,71 @@ export interface Movie {
   image: string;
 }
 
+// Gifting types (for Gifting & Dates)
+export interface GiftIdeaLocation {
+  name?: string;
+  city?: string;
+  country?: string;
+}
+
+export interface GiftIdeaPrice {
+  amount: number;
+  currency: string;
+}
+
+export interface GiftIdeaImage {
+  publicId: string;
+  url: string;
+  width?: number;
+  height?: number;
+  format?: string;
+}
+
+export interface GiftIdea {
+  _id: string;
+  userId: string;
+  title: string;
+  description?: string;
+  type: 'cafe' | 'stay' | 'gift' | 'activity' | 'experience' | 'other';
+  location?: GiftIdeaLocation;
+  price?: GiftIdeaPrice;
+  link?: string;
+  images: GiftIdeaImage[];
+  tags?: string[];
+  status: 'idea' | 'planned' | 'used' | 'archived';
+  isFavorite: boolean;
+  source?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateGiftIdeaData {
+  title: string;
+  description?: string;
+  type: 'cafe' | 'stay' | 'gift' | 'activity' | 'experience' | 'other';
+  location?: GiftIdeaLocation;
+  price?: GiftIdeaPrice;
+  link?: string;
+  tags?: string[];
+  status?: 'idea' | 'planned' | 'used' | 'archived';
+  isFavorite?: boolean;
+  source?: string;
+  images?: File[];
+}
+
+export interface GiftIdeaResponse {
+  success: boolean;
+  message: string;
+  data: GiftIdea;
+}
+
+export interface GiftIdeasResponse {
+  success: boolean;
+  message: string;
+  data: GiftIdea[];
+}
+
+// Legacy DateIdea type (for backward compatibility if needed)
 export interface DateIdea {
   id: string;
   title: string;
@@ -458,6 +585,262 @@ export interface IdeasResponse {
       pages: number;
     };
   };
+}
+
+// Money Management types
+export interface Income {
+  _id: string;
+  userId: string;
+  name: string;
+  amount: number;
+  type: 'salary' | 'freelance' | 'bonus' | 'side_income' | 'refund' | 'other';
+  frequency: 'monthly' | 'one_time';
+  receivedAt: string;
+  notes?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateIncomeData {
+  name: string;
+  amount: number;
+  type: 'salary' | 'freelance' | 'bonus' | 'side_income' | 'refund' | 'other';
+  frequency: 'monthly' | 'one_time';
+  receivedAt: string;
+  notes?: string;
+}
+
+export interface IncomeResponse {
+  success: boolean;
+  message: string;
+  data: Income;
+}
+
+export interface IncomesResponse {
+  success: boolean;
+  message: string;
+  data: Income[];
+}
+
+export interface MonthlyIncomeSummary {
+  total: number;
+  count: number;
+  byType: Record<string, number>;
+  incomes: Income[];
+}
+
+export interface MonthlyIncomeSummaryResponse {
+  success: boolean;
+  message: string;
+  data: MonthlyIncomeSummary;
+}
+
+export interface FixedExpense {
+  _id: string;
+  userId: string;
+  name: string;
+  amount: number;
+  category: 'rent' | 'utilities' | 'internet' | 'phone' | 'insurance' | 'emi' | 'subscription' | 'other';
+  billingCycle: 'monthly' | 'yearly';
+  dueDate?: number;
+  isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateFixedExpenseData {
+  name: string;
+  amount: number;
+  category: 'rent' | 'utilities' | 'internet' | 'phone' | 'insurance' | 'emi' | 'subscription' | 'other';
+  billingCycle: 'monthly' | 'yearly';
+  dueDate?: number;
+  isActive?: boolean;
+}
+
+export interface FixedExpenseResponse {
+  success: boolean;
+  message: string;
+  data: FixedExpense;
+}
+
+export interface FixedExpensesResponse {
+  success: boolean;
+  message: string;
+  data: FixedExpense[];
+}
+
+export interface Transaction {
+  _id: string;
+  userId: string;
+  amount: number;
+  type: 'expense' | 'income';
+  category: 'food' | 'travel' | 'shopping' | 'entertainment' | 'health' | 'misc';
+  date: string;
+  note?: string;
+  source?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateTransactionData {
+  amount: number;
+  type: 'expense' | 'income';
+  category: 'food' | 'travel' | 'shopping' | 'entertainment' | 'health' | 'misc';
+  date: string;
+  note?: string;
+  source?: string;
+}
+
+export interface TransactionResponse {
+  success: boolean;
+  message: string;
+  data: Transaction;
+}
+
+export interface TransactionsResponse {
+  success: boolean;
+  message: string;
+  data: {
+    transactions: Transaction[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      pages: number;
+    };
+  };
+}
+
+export interface MonthlyTransactions {
+  totalExpenses: number;
+  totalIncome: number;
+  expensesByCategory: Record<string, number>;
+  transactions: Transaction[];
+}
+
+export interface MonthlyTransactionsResponse {
+  success: boolean;
+  message: string;
+  data: MonthlyTransactions;
+}
+
+export interface Fund {
+  _id: string;
+  userId: string;
+  name: string;
+  type: 'emergency' | 'savings' | 'goal';
+  targetAmount?: number;
+  currentAmount: number;
+  priority: number;
+  isLocked: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateFundData {
+  name: string;
+  type: 'emergency' | 'savings' | 'goal';
+  targetAmount?: number;
+  currentAmount?: number;
+  priority?: number;
+  isLocked?: boolean;
+}
+
+export interface FundResponse {
+  success: boolean;
+  message: string;
+  data: Fund;
+}
+
+export interface FundsResponse {
+  success: boolean;
+  message: string;
+  data: Fund[];
+}
+
+export interface Debt {
+  _id: string;
+  userId: string;
+  personName: string;
+  amount: number;
+  type: 'lent' | 'borrowed';
+  status: 'pending' | 'settled';
+  dueDate?: string;
+  note?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateDebtData {
+  personName: string;
+  amount: number;
+  type: 'lent' | 'borrowed';
+  dueDate?: string;
+  note?: string;
+}
+
+export interface DebtResponse {
+  success: boolean;
+  message: string;
+  data: Debt;
+}
+
+export interface DebtsResponse {
+  success: boolean;
+  message: string;
+  data: Debt[];
+}
+
+export interface WishlistItem {
+  _id: string;
+  userId: string;
+  name: string;
+  price: number;
+  priority: 'low' | 'medium' | 'high';
+  status: 'pending' | 'bought' | 'removed';
+  plannedMonth?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateWishlistItemData {
+  name: string;
+  price: number;
+  priority?: 'low' | 'medium' | 'high';
+  status?: 'pending' | 'bought' | 'removed';
+  plannedMonth?: string;
+}
+
+export interface WishlistItemResponse {
+  success: boolean;
+  message: string;
+  data: WishlistItem;
+}
+
+export interface WishlistItemsResponse {
+  success: boolean;
+  message: string;
+  data: WishlistItem[];
+}
+
+export interface MoneyOverview {
+  totalIncome: number;
+  fixedExpensesTotal: number;
+  savingsTotal: number;
+  safeToSpend: number;
+  spentSoFar: number;
+  emergencyFundStatus: 'low' | 'okay' | 'healthy';
+  emergencyFundAmount: number;
+  debts: {
+    owed: number;
+    receivable: number;
+  };
+}
+
+export interface MoneyOverviewResponse {
+  success: boolean;
+  message: string;
+  data: MoneyOverview;
 }
 
 export interface ApiError {
