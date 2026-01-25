@@ -56,6 +56,16 @@ export const VAULT_DOCUMENT_ENDPOINTS = {
   DELETE: (id: string) => `/vault/documents/${id}`
 };
 
+// Idea endpoints
+export const IDEA_ENDPOINTS = {
+  CREATE: '/ideas',
+  GET_ALL: '/ideas',
+  GET_BY_ID: (id: string) => `/ideas/${id}`,
+  UPDATE: (id: string) => `/ideas/${id}`,
+  DELETE: (id: string) => `/ideas/${id}`,
+  REFLECT: '/ideas/reflect'
+};
+
 // Local storage keys
 export const STORAGE_KEYS = {
   AUTH_TOKEN: 'lifeos_auth_token',

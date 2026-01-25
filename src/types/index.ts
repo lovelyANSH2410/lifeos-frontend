@@ -6,7 +6,8 @@ export enum Tab {
   Vault = 'Vault',
   Subscriptions = 'Subscriptions',
   Travel = 'Travel',
-  Journal = 'Journal'
+  Journal = 'Journal',
+  Ideas = 'Ideas'
 }
 
 export type Plan = 'Free' | 'Couple' | 'Pro';
@@ -403,6 +404,60 @@ export interface RegisterCredentials {
   name: string;
   email: string;
   password: string;
+}
+
+// Idea types (for Idea Inbox)
+export interface IdeaImage {
+  publicId: string;
+  url: string;
+}
+
+export interface Idea {
+  _id: string;
+  userId: string;
+  title?: string;
+  content: string;
+  type?: 'curiosity' | 'learning' | 'idea' | 'inspiration' | 'news' | 'question' | 'random';
+  source?: 'youtube' | 'instagram' | 'article' | 'book' | 'conversation' | 'random';
+  link?: string;
+  image?: IdeaImage;
+  tags?: string[];
+  status: 'inbox' | 'saved' | 'explored' | 'archived';
+  revisitAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateIdeaData {
+  title?: string;
+  content: string;
+  type?: 'curiosity' | 'learning' | 'idea' | 'inspiration' | 'news' | 'question' | 'random';
+  source?: 'youtube' | 'instagram' | 'article' | 'book' | 'conversation' | 'random';
+  link?: string;
+  tags?: string[];
+  status?: 'inbox' | 'saved' | 'explored' | 'archived';
+  revisitAt?: string;
+  image?: File;
+}
+
+export interface IdeaResponse {
+  success: boolean;
+  message: string;
+  data: Idea;
+}
+
+export interface IdeasResponse {
+  success: boolean;
+  message: string;
+  data: {
+    ideas: Idea[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      pages: number;
+    };
+  };
 }
 
 export interface ApiError {

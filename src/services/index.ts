@@ -5,3 +5,4 @@ export * from './subscription.service';
 export * from './trip.service';
 export * from './vault.service';
 export * from './document.service';
+export * from './idea.service';

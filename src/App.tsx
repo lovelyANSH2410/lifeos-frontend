@@ -15,7 +15,8 @@ import {
   Sparkles,
   Users,
   Crown,
-  LogOut
+  LogOut,
+  Lightbulb
 } from 'lucide-react';
 import { Tab, Plan } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
@@ -29,6 +30,7 @@ import VaultView from '@/components/features/VaultView';
 import TravelView from '@/components/features/TravelView';
 import SubscriptionsView from '@/components/features/SubscriptionsView';
 import JournalView from '@/components/features/JournalView';
+import IdeaInboxView from '@/components/features/IdeaInboxView';
 import ProfileModal from './components/features/ProfileModal';
 
 const App: React.FC = () => {
@@ -96,6 +98,7 @@ const App: React.FC = () => {
           <SidebarItem icon={Plane} label="Travel Plans" active={activeTab === Tab.Travel} onClick={() => setActiveTab(Tab.Travel)} collapsed={!isSidebarOpen} />
           <SidebarItem icon={Repeat} label="Subscriptions" active={activeTab === Tab.Subscriptions} onClick={() => setActiveTab(Tab.Subscriptions)} collapsed={!isSidebarOpen} />
           <SidebarItem icon={Book} label="Personal Diary" active={activeTab === Tab.Journal} onClick={() => setActiveTab(Tab.Journal)} collapsed={!isSidebarOpen} />
+          <SidebarItem icon={Lightbulb} label="Idea Inbox" active={activeTab === Tab.Ideas} onClick={() => setActiveTab(Tab.Ideas)} collapsed={!isSidebarOpen} />
         </nav>
         
         <div className="p-4 border-t border-white/5 space-y-2">
@@ -177,6 +180,7 @@ const App: React.FC = () => {
               {activeTab === Tab.Travel && <TravelView />}
               {activeTab === Tab.Subscriptions && <SubscriptionsView />}
               {activeTab === Tab.Journal && <JournalView />}
+              {activeTab === Tab.Ideas && <IdeaInboxView />}
             </div>
           </div>
         </main>
