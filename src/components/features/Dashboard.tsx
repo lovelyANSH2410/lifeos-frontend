@@ -1,124 +1,359 @@
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
-  ArrowRight, 
-  Heart,
-  Plane,
-  Film,
+  Calendar,
   TrendingUp,
+  Plane,
   Wallet,
-  CalendarHeart
+  DollarSign,
+  Loader2,
+  AlertCircle,
+  Lightbulb,
+  BookOpen,
+  FileText,
+  Film
 } from 'lucide-react';
 import { Tab } from '@/types';
-import ReflectionPrompt from './ReflectionPrompt';
-
-const Widget: React.FC<{
-  title: string;
-  icon?: React.ElementType;
-  children: React.ReactNode;
-  className?: string;
-  onClick?: () => void;
-  accentColor?: string;
-}> = ({ title, icon: Icon, children, className, onClick, accentColor = 'text-indigo-400' }) => (
-  <div 
-    onClick={onClick}
-    className={`modern-card p-6 flex flex-col justify-between cursor-pointer group hover:bg-[#1A2235] ${className}`}
-  >
-    <div className="flex items-center justify-between mb-4">
-      <div className="flex items-center gap-2">
-        {Icon && <Icon className={`w-4 h-4 ${accentColor} opacity-80`} />}
-        <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{title}</span>
-      </div>
-      <ArrowRight className="w-4 h-4 text-gray-600 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />
-    </div>
-    {children}
-  </div>
-);
+import { getDashboard } from '@/services/dashboard.service';
+import { useAuth } from '@/contexts/AuthContext';
+import type { DashboardData } from '@/types';
 
 const Dashboard: React.FC<{ setActiveTab: (tab: Tab) => void }> = ({ setActiveTab }) => {
+  const { user } = useAuth();
+  const defaultCurrency = user?.currency || 'INR';
+  
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [quickCaptureText, setQuickCaptureText] = useState('');
+
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const response = await getDashboard();
+        setDashboardData(response.data);
+      } catch (err: any) {
+        setError(err.message || 'Failed to load dashboard');
+        console.error('Dashboard fetch error:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDashboard();
+  }, []);
+
+  const formatCurrency = (amount: number) => {
+    return amount.toLocaleString('en-US', {
+      style: 'currency',
+      currency: defaultCurrency
+    });
+  };
+
+  const getTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return '1 day ago';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    return `${Math.floor(diffDays / 7)} weeks ago`;
+  };
+
+  // Count upcoming payments/subscriptions for money snapshot
+  const getUpcomingCount = () => {
+    if (!dashboardData) return 0;
+    let count = 0;
+    if (dashboardData.upcoming.nextPayment) count++;
+    if (dashboardData.upcoming.nextSubscription) count++;
+    return count;
+  };
+
+  // Get activity icon
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case 'MONEY':
+        return <DollarSign className="w-4 h-4 text-emerald-400" />;
+      case 'IDEA':
+        return <Lightbulb className="w-4 h-4 text-purple-400" />;
+      case 'DIARY':
+        return <BookOpen className="w-4 h-4 text-blue-400" />;
+      case 'TRAVEL':
+        return <Plane className="w-4 h-4 text-sky-400" />;
+      case 'WATCH':
+        return <FileText className="w-4 h-4 text-gray-400" />;
+      default:
+        return <FileText className="w-4 h-4 text-gray-400" />;
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-rose-400" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-6 flex items-center gap-3">
+        <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
+        <p className="text-red-400">{error}</p>
+      </div>
+    );
+  }
+
+  if (!dashboardData) {
+    return null;
+  }
+
+  // Get most important upcoming items (max 3)
+  const upcomingItems = [
+    dashboardData.upcoming.nextPayment && { type: 'payment', data: dashboardData.upcoming.nextPayment },
+    dashboardData.upcoming.nextSubscription && { type: 'subscription', data: dashboardData.upcoming.nextSubscription },
+    dashboardData.upcoming.nextTrip && { type: 'trip', data: dashboardData.upcoming.nextTrip }
+  ].filter(Boolean).slice(0, 3);
+
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col md:flex-row justify-between items-end gap-4">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Welcome Home</h1>
-          <p className="text-gray-400">Your shared life, organized.</p>
-        </div>
-        <div className="flex gap-2">
-           <span className="bg-rose-500/10 text-rose-400 border border-rose-500/20 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
-             <Heart className="w-3 h-3 fill-rose-500" /> Anniversary in 12 days
-           </span>
-        </div>
+    <div className="space-y-6 animate-enter">
+      {/* HEADER */}
+      <div>
+        <h1 className="text-4xl font-bold text-white mb-2">
+          {dashboardData.greeting.message} 👋
+        </h1>
+        <p className="text-gray-400 text-lg">Here's a quick look at what matters today</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Next Date Night Widget */}
-        <Widget 
-          title="Next Date Night" 
-          icon={CalendarHeart} 
-          className="lg:col-span-2 relative overflow-hidden bg-gradient-to-br from-[#151B28] to-[#1c1825]"
-          onClick={() => setActiveTab(Tab.Dates)}
-          accentColor="text-rose-400"
-        >
-          <div className="absolute top-0 right-0 p-8 opacity-5">
-            <Heart className="w-32 h-32" />
+      {/* UPCOMING - Horizontal Cards */}
+      {upcomingItems.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {upcomingItems.map((item, index) => {
+            if (item?.type === 'payment') {
+              const payment = item.data as typeof dashboardData.upcoming.nextPayment;
+              return (
+                <div
+                  key={index}
+                  onClick={() => setActiveTab(Tab.Money)}
+                  className="modern-card p-6 cursor-pointer group hover:bg-[#1A2235] transition-colors rounded-2xl"
+                >
+                  <div className="flex items-center gap-2 mb-4">
+                    <Calendar className="w-4 h-4 text-red-400" />
+                    <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">PAYMENT</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">{payment.title}</h3>
+                  <p className="text-sm text-gray-400 mb-3">in {payment.dueInDays} days</p>
+                  <p className="text-2xl font-bold text-white">{formatCurrency(payment.amount)}</p>
+                </div>
+              );
+            }
+            
+            if (item?.type === 'subscription') {
+              const subscription = item.data as typeof dashboardData.upcoming.nextSubscription;
+              const renewsText = subscription.renewsInDays === 0 
+                ? 'Renews today' 
+                : subscription.renewsInDays === 1 
+                ? 'Renews tomorrow'
+                : `Renews in ${subscription.renewsInDays} days`;
+              
+              return (
+                <div
+                  key={index}
+                  onClick={() => setActiveTab(Tab.Subscriptions)}
+                  className="modern-card p-6 cursor-pointer group hover:bg-[#1A2235] transition-colors rounded-2xl"
+                >
+                  <div className="flex items-center gap-2 mb-4">
+                    <TrendingUp className="w-4 h-4 text-purple-400" />
+                    <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">SUBSCRIPTION</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">{subscription.name}</h3>
+                  <p className="text-sm text-gray-400 mb-3">{renewsText}</p>
+                  <p className="text-2xl font-bold text-white">{formatCurrency(subscription.amount)}</p>
+                </div>
+              );
+            }
+            
+            if (item?.type === 'trip') {
+              const trip = item.data as typeof dashboardData.upcoming.nextTrip;
+              return (
+                <div
+                  key={index}
+                  onClick={() => setActiveTab(Tab.Travel)}
+                  className="modern-card p-6 cursor-pointer group hover:bg-[#1A2235] transition-colors rounded-2xl relative overflow-hidden"
+                >
+                  {trip.image && (
+                    <div className="absolute inset-0 opacity-10">
+                      <img 
+                        src={trip.image} 
+                        alt={trip.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  <div className="relative z-10">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Plane className="w-4 h-4 text-sky-400" />
+                      <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">TRIP</span>
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-2">{trip.title}</h3>
+                    <p className="text-sm text-gray-400">in {trip.startsInDays} days</p>
+                  </div>
+                </div>
+              );
+            }
+            
+            return null;
+          })}
+        </div>
+      )}
+
+      {/* MONEY SNAPSHOT & CONTINUE WATCHING - Side by Side */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Money Snapshot */}
+        <div className="modern-card p-6 rounded-2xl">
+          <div className="flex items-center gap-2 mb-6">
+            <Wallet className="w-4 h-4 text-emerald-400" />
+            <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">MONEY SNAPSHOT</span>
           </div>
-          <div className="flex gap-6 items-center">
-             <img src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" className="w-24 h-24 rounded-xl object-cover shadow-lg border border-white/10" alt="Date" />
-             <div>
-               <h3 className="text-2xl font-bold text-white mb-1 leading-tight">Jazz & Cocktails</h3>
-               <p className="text-gray-400 text-sm mb-3">Blue Velvet Lounge • Friday 8pm</p>
-               <span className="bg-rose-500 text-white text-[10px] font-bold px-2 py-1 rounded-md">Confirmed</span>
-             </div>
+          <div>
+            <p className="text-3xl font-bold text-white mb-1">
+              {formatCurrency(dashboardData.moneySnapshot.currentBalance)}
+            </p>
+            {getUpcomingCount() > 0 && (
+              <p className="text-sm text-gray-400">
+                {getUpcomingCount()} {getUpcomingCount() === 1 ? 'payment' : 'payments'} ahead
+              </p>
+            )}
           </div>
-        </Widget>
+        </div>
 
-        {/* Watchlist Widget */}
-        <Widget title="Watchlist" icon={Film} onClick={() => setActiveTab(Tab.Entertainment)} accentColor="text-purple-400">
-           <div className="flex gap-3 overflow-hidden">
-             <img src="https://image.tmdb.org/t/p/w200/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg" className="w-16 h-24 rounded-lg object-cover border border-white/10 hover:scale-105 transition-transform" />
-             <div className="flex flex-col justify-center">
-                <p className="text-sm font-bold text-white mb-1">Inception</p>
-                <p className="text-xs text-gray-500 mb-2">Sci-Fi • 8.8</p>
-                <button className="bg-white/10 hover:bg-white/20 text-xs text-white px-2 py-1 rounded">Play Now</button>
-             </div>
-           </div>
-        </Widget>
-
-        {/* Joint Budget */}
-        <Widget title="Wishlist Budget" icon={Wallet} onClick={() => setActiveTab(Tab.Money)} accentColor="text-emerald-400">
-           <div className="mt-2">
-             <div className="flex justify-between items-end mb-2">
-                <p className="text-2xl font-bold text-white">$450</p>
-                <p className="text-xs text-gray-500">left for gifts</p>
-             </div>
-             <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
-                <div className="bg-emerald-500 h-full w-[65%]"></div>
-             </div>
-             <p className="text-[10px] text-gray-500 mt-2 text-right">Saving for: Espresso Machine</p>
-           </div>
-        </Widget>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Upcoming Trip */}
-        <Widget title="Dream Trip" icon={Plane} onClick={() => setActiveTab(Tab.Travel)} accentColor="text-sky-400">
-          <div className="space-y-4">
-            <div className="h-32 rounded-xl bg-[url('https://images.unsplash.com/photo-1502602898657-3e91760cbb34?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')] bg-cover bg-center relative group-hover:scale-[1.02] transition-transform duration-500">
-              <div className="absolute inset-0 bg-black/30 rounded-xl flex items-center justify-center">
-                <p className="text-xl font-bold text-white tracking-widest uppercase drop-shadow-lg">Paris</p>
+        {/* Continue Watching */}
+        {dashboardData.continueWatching && (
+          <div
+            onClick={() => setActiveTab(Tab.Entertainment)}
+            className="modern-card p-6 cursor-pointer group hover:bg-[#1A2235] transition-colors rounded-2xl"
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <Film className="w-4 h-4 text-purple-400" />
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">CONTINUE WATCHING</span>
+            </div>
+            <div className="flex gap-4">
+              {dashboardData.continueWatching.poster && (
+                <img 
+                  src={typeof dashboardData.continueWatching.poster === 'string' 
+                    ? dashboardData.continueWatching.poster 
+                    : dashboardData.continueWatching.poster} 
+                  alt={dashboardData.continueWatching.title}
+                  className="w-16 h-24 rounded-xl object-cover border border-white/10 flex-shrink-0"
+                />
+              )}
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg font-bold text-white mb-1 truncate">{dashboardData.continueWatching.title}</h3>
+                {dashboardData.continueWatching.type === 'series' && dashboardData.continueWatching.season && dashboardData.continueWatching.episode && (
+                  <p className="text-sm text-gray-400 mb-2">
+                    S{dashboardData.continueWatching.season} E{dashboardData.continueWatching.episode}
+                  </p>
+                )}
+                {dashboardData.continueWatching.platform && (
+                  <p className="text-xs text-gray-500 mb-3">{dashboardData.continueWatching.platform}</p>
+                )}
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveTab(Tab.Entertainment);
+                  }}
+                  className="text-sm text-purple-400 hover:text-purple-300 font-medium"
+                >
+                  Continue →
+                </button>
               </div>
             </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-400">Sept 2025</span>
-              <span className="text-emerald-400 font-medium">$2,400 saved</span>
+          </div>
+        )}
+      </div>
+
+      {/* QUICK CAPTURE & RECENT ACTIVITY - Side by Side */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Quick Capture */}
+        {dashboardData.quickCapture.enabled && (
+          <div className="lg:col-span-2">
+            <div className="modern-card p-6 rounded-2xl h-full">
+              <textarea
+                value={quickCaptureText}
+                onChange={(e) => setQuickCaptureText(e.target.value)}
+                placeholder="What's on your mind?"
+                rows={4}
+                className="w-full bg-[#0B0F17] border border-white/10 rounded-xl px-5 py-4 text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 outline-none transition-all resize-none mb-4"
+              />
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    if (quickCaptureText.trim()) {
+                      setActiveTab(Tab.Ideas);
+                      setQuickCaptureText('');
+                    }
+                  }}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-500/20 to-purple-600/20 hover:from-purple-500/30 hover:to-purple-600/30 text-purple-400 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2"
+                >
+                  <Lightbulb className="w-4 h-4" />
+                  Save as Idea
+                </button>
+                <button
+                  onClick={() => {
+                    if (quickCaptureText.trim()) {
+                      setActiveTab(Tab.Journal);
+                      setQuickCaptureText('');
+                    }
+                  }}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500/20 to-blue-600/20 hover:from-blue-500/30 hover:to-blue-600/30 text-blue-400 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2"
+                >
+                  <BookOpen className="w-4 h-4" />
+                  Save as Diary
+                </button>
+                <button
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-gray-500/20 to-gray-600/20 hover:from-gray-500/30 hover:to-gray-600/30 text-gray-400 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2"
+                >
+                  <FileText className="w-4 h-4" />
+                  Save as Note
+                </button>
+              </div>
             </div>
           </div>
-        </Widget>
+        )}
 
-        {/* Quick Notes / Diary */}
-        <div className="lg:col-span-2">
-          <ReflectionPrompt />
-        </div>
+        {/* Recent Activity */}
+        {dashboardData.recentActivity.length > 0 && (
+          <div className="lg:col-span-1">
+            <div className="modern-card p-6 rounded-2xl h-full flex flex-col">
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Recent Activity</h3>
+              <div className="space-y-2 flex-1">
+                {dashboardData.recentActivity.slice(0, 5).map((activity, index) => (
+                  <div
+                    key={index}
+                    onClick={() => {
+                      if (activity.type === 'TRAVEL') setActiveTab(Tab.Travel);
+                      else if (activity.type === 'MONEY') setActiveTab(Tab.Money);
+                      else if (activity.type === 'IDEA') setActiveTab(Tab.Ideas);
+                      else if (activity.type === 'DIARY') setActiveTab(Tab.Journal);
+                    }}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer group hover:bg-white/5 transition-colors"
+                  >
+                    <div className="flex-shrink-0">
+                      {getActivityIcon(activity.type)}
+                    </div>
+                    <span className="text-gray-300 text-xs flex-1 line-clamp-1">{activity.message}</span>
+                    <span className="text-gray-500 text-[10px] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                      {getTimeAgo(activity.createdAt)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

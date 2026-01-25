@@ -21,6 +21,9 @@ export interface WatchItemPoster {
   format?: string;
 }
 
+// Poster can be either Cloudinary object or direct URL string
+export type WatchItemPosterType = WatchItemPoster | string;
+
 export interface WatchItem {
   _id: string;
   userId: string;
@@ -33,7 +36,7 @@ export interface WatchItem {
   rating?: number; // 1-5, only when status is 'watched'
   moodTags?: string[];
   notes?: string;
-  poster?: WatchItemPoster;
+  poster?: WatchItemPosterType; // Can be Cloudinary object or URL string
   currentSeason?: number; // Only for series
   currentEpisode?: number; // Only for series
   lastWatchedAt?: string;
@@ -51,7 +54,8 @@ export interface CreateWatchItemData {
   rating?: number; // 1-5, only when status is 'watched'
   moodTags?: string[];
   notes?: string;
-  poster?: File;
+  poster?: File; // File upload
+  posterUrl?: string; // Direct image URL (stored as-is, no Cloudinary upload)
   currentSeason?: number; // Only for series
   currentEpisode?: number; // Only for series
 }
@@ -841,6 +845,88 @@ export interface MoneyOverviewResponse {
   success: boolean;
   message: string;
   data: MoneyOverview;
+}
+
+// Dashboard types
+export interface DashboardGreeting {
+  message: string;
+  date: string;
+}
+
+export interface NextTrip {
+  title: string;
+  startDate: string;
+  endDate?: string | null;
+  startsInDays: number;
+  image: string | null;
+}
+
+export interface NextSubscription {
+  name: string;
+  amount: number;
+  currency?: string;
+  renewsInDays: number;
+}
+
+export interface NextPayment {
+  title: string;
+  amount: number;
+  dueInDays: number;
+}
+
+export interface Upcoming {
+  nextTrip: NextTrip | null;
+  nextSubscription: NextSubscription | null;
+  nextPayment: NextPayment | null;
+}
+
+export interface MoneySnapshot {
+  currentBalance: number;
+  monthlyBudget: number;
+  monthlySpent: number;
+  borrowed: number;
+  lent: number;
+}
+
+export interface ContinueWatching {
+  title: string;
+  type: 'movie' | 'series';
+  season: number | null;
+  episode: number | null;
+  platform: string | null;
+  progressPercent: number;
+  poster: string | null; // Can be URL string or Cloudinary URL
+}
+
+export interface RecentActivity {
+  type: 'DIARY' | 'TRAVEL' | 'MONEY' | 'IDEA' | 'WATCH';
+  message: string;
+  createdAt: string;
+}
+
+export interface QuickCapture {
+  enabled: boolean;
+}
+
+export interface Insight {
+  message: string;
+  cta: string;
+}
+
+export interface DashboardData {
+  greeting: DashboardGreeting;
+  upcoming: Upcoming;
+  moneySnapshot: MoneySnapshot;
+  continueWatching: ContinueWatching | null;
+  recentActivity: RecentActivity[];
+  quickCapture: QuickCapture;
+  insight: Insight | null;
+}
+
+export interface DashboardResponse {
+  success: boolean;
+  message: string;
+  data: DashboardData;
 }
 
 export interface ApiError {

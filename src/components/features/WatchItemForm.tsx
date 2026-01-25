@@ -50,7 +50,9 @@ const WatchItemForm: React.FC<WatchItemFormProps> = ({
   });
   
   const [selectedPoster, setSelectedPoster] = useState<File | null>(null);
+  const [posterUrl, setPosterUrl] = useState<string>('');
   const [posterPreview, setPosterPreview] = useState<string | null>(null);
+  const [posterInputMode, setPosterInputMode] = useState<'upload' | 'url'>('upload');
   const [moodTagsInput, setMoodTagsInput] = useState<string>('');
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(formData.platforms || []);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -72,8 +74,22 @@ const WatchItemForm: React.FC<WatchItemFormProps> = ({
       });
       setSelectedPlatforms(item.platforms || []);
       setMoodTagsInput(item.moodTags?.join(', ') || '');
-      setPosterPreview(item.poster?.url || null);
+      // Handle poster: could be Cloudinary object or URL string
+      if (item.poster) {
+        if (typeof item.poster === 'string') {
+          setPosterPreview(item.poster);
+          setPosterUrl(item.poster);
+          setPosterInputMode('url');
+        } else {
+          setPosterPreview(item.poster.url);
+          setPosterInputMode('upload');
+        }
+      } else {
+        setPosterPreview(null);
+        setPosterInputMode('upload');
+      }
       setSelectedPoster(null);
+      setPosterUrl('');
     } else if (!item && isOpen) {
       setFormData({
         title: '',
@@ -92,6 +108,8 @@ const WatchItemForm: React.FC<WatchItemFormProps> = ({
       setMoodTagsInput('');
       setPosterPreview(null);
       setSelectedPoster(null);
+      setPosterUrl('');
+      setPosterInputMode('upload');
     }
   }, [item, isOpen]);
 
@@ -124,6 +142,8 @@ const WatchItemForm: React.FC<WatchItemFormProps> = ({
     const file = e.target.files?.[0];
     if (file) {
       setSelectedPoster(file);
+      setPosterUrl(''); // Clear URL when file is selected
+      setPosterInputMode('upload');
       const reader = new FileReader();
       reader.onloadend = () => {
         setPosterPreview(reader.result as string);
@@ -132,8 +152,33 @@ const WatchItemForm: React.FC<WatchItemFormProps> = ({
     }
   };
 
+  const handlePosterUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const url = e.target.value;
+    setPosterUrl(url);
+    setSelectedPoster(null); // Clear file when URL is entered
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    
+    // Validate and preview URL
+    if (url.trim()) {
+      try {
+        new URL(url);
+        setPosterPreview(url);
+      } catch {
+        // Invalid URL, clear preview
+        if (!url.trim()) {
+          setPosterPreview(null);
+        }
+      }
+    } else {
+      setPosterPreview(null);
+    }
+  };
+
   const handleRemovePoster = () => {
     setSelectedPoster(null);
+    setPosterUrl('');
     setPosterPreview(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -174,6 +219,7 @@ const WatchItemForm: React.FC<WatchItemFormProps> = ({
       platforms: selectedPlatforms.length > 0 ? selectedPlatforms : undefined,
       moodTags: moodTags.length > 0 ? moodTags : undefined,
       poster: selectedPoster || undefined,
+      posterUrl: posterUrl.trim() || undefined,
     };
 
     await onSubmit(submitData);
@@ -419,6 +465,50 @@ const WatchItemForm: React.FC<WatchItemFormProps> = ({
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Poster (Optional)
             </label>
+            
+            {/* Toggle between Upload and URL */}
+            <div className="flex gap-2 mb-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setPosterInputMode('upload');
+                  setPosterUrl('');
+                  if (!selectedPoster) {
+                    setPosterPreview(null);
+                  }
+                }}
+                className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                  posterInputMode === 'upload'
+                    ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                    : 'bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10'
+                }`}
+                disabled={isLoading}
+              >
+                Upload File
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setPosterInputMode('url');
+                  setSelectedPoster(null);
+                  if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                  }
+                  if (!posterUrl) {
+                    setPosterPreview(null);
+                  }
+                }}
+                className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                  posterInputMode === 'url'
+                    ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                    : 'bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10'
+                }`}
+                disabled={isLoading}
+              >
+                Paste URL
+              </button>
+            </div>
+
             {posterPreview ? (
               <div className="relative mb-3">
                 <img
@@ -436,14 +526,27 @@ const WatchItemForm: React.FC<WatchItemFormProps> = ({
                 </button>
               </div>
             ) : (
-              <div
-                onClick={() => fileInputRef.current?.click()}
-                className="w-full h-32 border-2 border-dashed border-white/20 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-rose-500/50 hover:bg-white/5 transition-all"
-              >
-                <Upload className="w-6 h-6 text-gray-500 mb-2" />
-                <p className="text-sm text-gray-400">Click to upload poster</p>
-                <p className="text-xs text-gray-500 mt-1">Max 5MB</p>
-              </div>
+              <>
+                {posterInputMode === 'upload' ? (
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full h-32 border-2 border-dashed border-white/20 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-rose-500/50 hover:bg-white/5 transition-all"
+                  >
+                    <Upload className="w-6 h-6 text-gray-500 mb-2" />
+                    <p className="text-sm text-gray-400">Click to upload poster</p>
+                    <p className="text-xs text-gray-500 mt-1">Max 5MB</p>
+                  </div>
+                ) : (
+                  <input
+                    type="url"
+                    value={posterUrl}
+                    onChange={handlePosterUrlChange}
+                    placeholder="https://example.com/poster.jpg"
+                    className="w-full bg-[#0B0F17] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-rose-500/50 focus:border-rose-500/50 outline-none transition-all"
+                    disabled={isLoading}
+                  />
+                )}
+              </>
             )}
             <input
               ref={fileInputRef}
@@ -451,7 +554,7 @@ const WatchItemForm: React.FC<WatchItemFormProps> = ({
               accept="image/*"
               onChange={handlePosterSelect}
               className="hidden"
-              disabled={isLoading}
+              disabled={isLoading || posterInputMode === 'url'}
             />
           </div>
 

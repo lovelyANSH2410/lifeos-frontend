@@ -262,7 +262,9 @@ const WatchView: React.FC = () => {
                 <div 
                   className="h-64 bg-cover bg-center relative"
                   style={{
-                    backgroundImage: item.poster?.url 
+                    backgroundImage: typeof item.poster === 'string' 
+                      ? `url(${item.poster})` 
+                      : item.poster?.url 
                       ? `url(${item.poster.url})`
                       : 'linear-gradient(135deg, #ec4899 0%, #f43f5e 100%)'
                   }}

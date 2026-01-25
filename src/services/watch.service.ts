@@ -95,6 +95,11 @@ export const createWatchItem = async (itemData: CreateWatchItemData): Promise<Wa
   if (itemData.poster) {
     formData.append('poster', itemData.poster);
   }
+  
+  // Add poster URL if provided (and no file)
+  if (itemData.posterUrl && !itemData.poster) {
+    formData.append('posterUrl', itemData.posterUrl);
+  }
 
   return await apiRequest<WatchItemResponse>(WATCH_ENDPOINTS.CREATE, {
     method: 'POST',

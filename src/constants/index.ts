@@ -9,6 +9,11 @@ export const AUTH_ENDPOINTS = {
   UPDATE_PROFILE: '/auth/profile'
 };
 
+// Dashboard endpoints
+export const DASHBOARD_ENDPOINTS = {
+  GET_DASHBOARD: '/dashboard'
+};
+
 // Diary endpoints
 export const DIARY_ENDPOINTS = {
   CREATE: '/diary',
