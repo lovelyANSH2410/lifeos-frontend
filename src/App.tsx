@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, 
   Film, 
@@ -20,8 +20,11 @@ import {
 } from 'lucide-react';
 import { Tab, Plan } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
+import { getUserSubscription } from '@/services/userSubscription.service';
+import type { UserSubscription } from '@/types';
 import SidebarItem from '@/components/common/SidebarItem';
 import BottomNav from '@/components/layout/BottomNav';
+import MobileSidebar from '@/components/layout/MobileSidebar';
 import CaptureModal from '@/components/common/CaptureModal';
 import Login from '@/components/auth/Login';
 import Dashboard from '@/components/features/Dashboard';
@@ -31,6 +34,7 @@ import MoneyView from '@/components/features/MoneyView';
 import VaultView from '@/components/features/VaultView';
 import TravelView from '@/components/features/TravelView';
 import SubscriptionsView from '@/components/features/SubscriptionsView';
+import SubscriptionPlansView from '@/components/features/SubscriptionPlansView';
 import JournalView from '@/components/features/JournalView';
 import IdeaInboxView from '@/components/features/IdeaInboxView';
 import ProfileModal from './components/features/ProfileModal';
@@ -39,11 +43,48 @@ import { useScreenSize } from '@/hooks/useScreenSize';
 const App: React.FC = () => {
   const { isAuthenticated, isLoading, user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>(Tab.Dashboard);
-  const [currentPlan, setCurrentPlan] = useState<Plan>('Couple');
+  const [userSubscription, setUserSubscription] = useState<UserSubscription | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isCaptureOpen, setIsCaptureOpen] = useState(false);
   const screenSize = useScreenSize();
+
+  // Fetch user subscription
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchSubscription();
+    }
+  }, [isAuthenticated]);
+
+  const fetchSubscription = async () => {
+    try {
+      const response = await getUserSubscription();
+      setUserSubscription(response.data);
+    } catch (err) {
+      console.error('Error fetching subscription:', err);
+      // Default to FREE if fetch fails
+      setUserSubscription({
+        plan: 'FREE',
+        billingCycle: 'NONE',
+        price: 0,
+        startedAt: null,
+        expiresAt: null,
+        isActive: true,
+        daysRemaining: null
+      });
+    }
+  };
+
+  const getPlanDisplayName = (plan: string): string => {
+    switch (plan) {
+      case 'FREE': return 'Free';
+      case 'PRO': return 'Pro';
+      case 'COUPLE': return 'Couple';
+      case 'LIFETIME': return 'Lifetime';
+      default: return 'Free';
+    }
+  };
 
   // Show loading state
   if (isLoading) {
@@ -80,20 +121,6 @@ const App: React.FC = () => {
           {isSidebarOpen && <span className="ml-3 font-bold text-lg tracking-tight text-white">LifeOS</span>}
         </div>
 
-        <div className="px-4 pt-6 pb-2">
-           {isSidebarOpen ? (
-             <div className="bg-[#151B28] rounded-xl p-1 flex border border-white/5">
-                <button onClick={() => setCurrentPlan('Free')} className={`flex-1 text-[10px] font-bold py-1.5 rounded-lg transition-all ${currentPlan === 'Free' ? 'bg-gray-700 text-white' : 'text-gray-500 hover:text-gray-300'}`}>Free</button>
-                <button onClick={() => setCurrentPlan('Couple')} className={`flex-1 text-[10px] font-bold py-1.5 rounded-lg transition-all ${currentPlan === 'Couple' ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-md' : 'text-gray-500 hover:text-gray-300'}`}>Couple</button>
-                <button onClick={() => setCurrentPlan('Pro')} className={`flex-1 text-[10px] font-bold py-1.5 rounded-lg transition-all ${currentPlan === 'Pro' ? 'bg-indigo-600 text-white' : 'text-gray-500 hover:text-gray-300'}`}>Pro</button>
-             </div>
-           ) : (
-             <div className="flex justify-center">
-                <div className="w-2 h-2 rounded-full bg-rose-500"></div>
-             </div>
-           )}
-        </div>
-
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto custom-scrollbar">
           <SidebarItem icon={LayoutDashboard} label="Dashboard" active={activeTab === Tab.Dashboard} onClick={() => setActiveTab(Tab.Dashboard)} collapsed={!isSidebarOpen} />
           <SidebarItem icon={Film} label="Movies & Series" active={activeTab === Tab.Entertainment} onClick={() => setActiveTab(Tab.Entertainment)} collapsed={!isSidebarOpen} />
@@ -107,23 +134,56 @@ const App: React.FC = () => {
         </nav>
         
         <div className="p-4 border-t border-white/5 space-y-2">
+          {/* Current Plan Badge */}
+          {user && (
+            <button
+              onClick={() => setActiveTab(Tab.SubscriptionPlans)}
+              className={`w-full p-3 rounded-xl bg-gradient-to-r from-indigo-500/20 to-purple-600/20 border border-indigo-500/30 hover:from-indigo-500/30 hover:to-purple-600/30 transition-all ${!isSidebarOpen && 'justify-center'}`}
+            >
+              <div className={`flex items-center gap-2 ${!isSidebarOpen ? 'justify-center' : ''}`}>
+                <Crown className="w-4 h-4 text-indigo-400" />
+                {isSidebarOpen && (
+                  <div className="flex-1 text-left">
+                    <p className="text-xs text-gray-400">Current Plan</p>
+                    <p className="text-sm font-bold text-white">
+                      {userSubscription ? getPlanDisplayName(userSubscription.plan) : 'Free'}
+                    </p>
+                  </div>
+                )}
+                {isSidebarOpen && userSubscription && userSubscription.plan !== 'LIFETIME' && (
+                  <span className="text-xs text-indigo-400 font-medium">Upgrade</span>
+                )}
+              </div>
+            </button>
+          )}
+          
           <button 
             onClick={() => setIsProfileOpen(true)}
             className={`flex items-center w-full p-2 rounded-xl hover:bg-white/5 transition-colors ${!isSidebarOpen && 'justify-center'}`}
           >
-            <div className="w-9 h-9 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 p-[2px]">
-               <div className="w-full h-full rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center border-2 border-[#0F131F]">
-                 <span className="text-white text-xs font-bold">
-                   {user?.name?.charAt(0).toUpperCase() || 'U'}
-                 </span>
-               </div>
-            </div>
+            {user?.profileImage ? (
+              <img
+                src={typeof user.profileImage === 'string' ? user.profileImage : user.profileImage.url}
+                alt={user?.name || 'Profile'}
+                className="w-9 h-9 rounded-full object-cover border-2 border-[#0F131F]"
+              />
+            ) : (
+              <div className="w-9 h-9 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 p-[2px]">
+                <div className="w-full h-full rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center border-2 border-[#0F131F]">
+                  <span className="text-white text-xs font-bold">
+                    {user?.name?.charAt(0).toUpperCase() || 'U'}
+                  </span>
+                </div>
+              </div>
+            )}
             {isSidebarOpen && (
               <div className="ml-3 text-left overflow-hidden flex-1">
                 <p className="text-sm font-medium text-white truncate">{user?.name || 'User'}</p>
                 <div className="flex items-center gap-1.5">
                    <Users className="w-3 h-3 text-rose-400" />
-                   <p className="text-xs text-rose-400 truncate">{currentPlan} Plan</p>
+                   <p className="text-xs text-rose-400 truncate">
+                     {userSubscription ? getPlanDisplayName(userSubscription.plan) : 'Free'} Plan
+                   </p>
                 </div>
               </div>
             )}
@@ -149,7 +209,12 @@ const App: React.FC = () => {
         {/* Glass Header */}
         <header className="h-16 flex items-center justify-between px-6 md:px-8 border-b border-white/5 z-40 shrink-0 glass-panel sticky top-0">
           <div className="flex items-center gap-4 flex-1">
-             <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="md:hidden p-2 text-gray-400 hover:text-white"><Menu className="w-5 h-5" /></button>
+             <button 
+               onClick={() => setIsMobileSidebarOpen(true)} 
+               className="md:hidden p-2 text-gray-400 hover:text-white transition-colors"
+             >
+               <Menu className="w-5 h-5" />
+             </button>
              <div className="relative max-w-sm w-full hidden sm:block group">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-indigo-400 transition-colors" />
                 <input 
@@ -160,10 +225,14 @@ const App: React.FC = () => {
              </div>
           </div>
           
-          <div className="flex items-center gap-4">
-             {currentPlan === 'Free' && (
-                <button className="hidden md:flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:shadow-lg transition-all">
-                   <Crown className="w-3 h-3" /> Upgrade
+          <div className="flex items-center gap-2 sm:gap-4">
+             {userSubscription && userSubscription.plan === 'FREE' && (
+                <button 
+                  onClick={() => setActiveTab(Tab.SubscriptionPlans)}
+                  className="flex items-center gap-1.5 sm:gap-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-2.5 sm:px-3 py-1.5 rounded-lg text-[10px] sm:text-xs font-bold hover:shadow-lg transition-all"
+                >
+                   <Crown className="w-3 h-3 flex-shrink-0" /> 
+                   <span className="hidden min-[375px]:inline">Upgrade</span>
                 </button>
              )}
              <button className="relative p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
@@ -184,6 +253,7 @@ const App: React.FC = () => {
               {activeTab === Tab.Vault && <VaultView />}
               {activeTab === Tab.Travel && <TravelView />}
               {activeTab === Tab.Subscriptions && <SubscriptionsView />}
+              {activeTab === Tab.SubscriptionPlans && <SubscriptionPlansView />}
               {activeTab === Tab.Journal && <JournalView />}
               {activeTab === Tab.Ideas && <IdeaInboxView />}
             </div>
@@ -205,6 +275,18 @@ const App: React.FC = () => {
         isOpen={isCaptureOpen}
         onClose={() => setIsCaptureOpen(false)}
         onNavigate={setActiveTab}
+      />
+
+      {/* Mobile Sidebar */}
+      <MobileSidebar
+        isOpen={isMobileSidebarOpen}
+        onClose={() => setIsMobileSidebarOpen(false)}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onProfileClick={() => setIsProfileOpen(true)}
+        onLogout={logout}
+        userSubscription={userSubscription}
+        getPlanDisplayName={getPlanDisplayName}
       />
 
       {/* Profile Modal */}

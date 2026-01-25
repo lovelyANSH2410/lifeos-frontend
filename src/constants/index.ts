@@ -22,7 +22,7 @@ export const DIARY_ENDPOINTS = {
   DELETE: (id: string) => `/diary/${id}`
 };
 
-// Subscription endpoints
+// Subscription endpoints (for subscription manager - Netflix, Spotify, etc.)
 export const SUBSCRIPTION_ENDPOINTS = {
   CREATE: '/subscriptions',
   GET_ALL: '/subscriptions',
@@ -30,6 +30,13 @@ export const SUBSCRIPTION_ENDPOINTS = {
   UPDATE: (id: string) => `/subscriptions/${id}`,
   DELETE: (id: string) => `/subscriptions/${id}`,
   SUMMARY: '/subscriptions/summary'
+};
+
+// User Subscription endpoints (for LifeOS plans)
+export const USER_SUBSCRIPTION_ENDPOINTS = {
+  GET: '/subscription',
+  UPGRADE: '/subscription/upgrade',
+  CANCEL: '/subscription/cancel'
 };
 
 // Trip endpoints

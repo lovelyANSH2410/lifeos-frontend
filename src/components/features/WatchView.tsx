@@ -182,9 +182,20 @@ const WatchView: React.FC = () => {
   return (
     <div className="space-y-8 animate-enter">
       <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-white">Movies & Series</h2>
-          <p className="text-gray-400 text-sm sm:text-base">Track what you watch.</p>
+        <div className="flex items-center gap-3 flex-1">
+          <div className="flex-1">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl sm:text-2xl font-bold text-white">Movies & Series</h2>
+              {/* Mobile: Small add button beside title */}
+              <button
+                onClick={openCreateForm}
+                className="sm:hidden w-8 h-8 rounded-lg bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white flex items-center justify-center transition-all shadow-md shadow-rose-500/30 flex-shrink-0 ml-3"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="text-gray-400 text-sm sm:text-base">Track what you watch.</p>
+          </div>
         </div>
         {/* Desktop/Tablet: Show button in header */}
         <button
@@ -206,7 +217,9 @@ const WatchView: React.FC = () => {
 
       {/* Filter Pills */}
       <div className="space-y-4">
-        <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4">
+          {/* Spacer for proper left padding */}
+          <div className="w-0.5 flex-shrink-0"></div>
           {statusFilters.map(f => (
             <button 
               key={f.id}
@@ -220,8 +233,12 @@ const WatchView: React.FC = () => {
               {f.label}
             </button>
           ))}
+          {/* Spacer for proper right padding */}
+          <div className="w-0.5 flex-shrink-0"></div>
         </div>
-        <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4">
+          {/* Spacer for proper left padding */}
+          <div className="w-0.5 flex-shrink-0"></div>
           {typeFilters.map(f => {
             const Icon = typeIcons[f.id] || Film;
             return (
@@ -239,6 +256,8 @@ const WatchView: React.FC = () => {
               </button>
             );
           })}
+          {/* Spacer for proper right padding */}
+          <div className="w-0.5 flex-shrink-0"></div>
         </div>
       </div>
 
@@ -416,16 +435,6 @@ const WatchView: React.FC = () => {
         isLoading={isSubmitting}
       />
 
-      {/* FAB for Mobile */}
-      {screenSize === 'mobile' && (
-        <button
-          onClick={openCreateForm}
-          className="fixed bottom-24 right-4 w-14 h-14 rounded-full bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white shadow-lg shadow-rose-500/30 flex items-center justify-center transition-all z-40"
-          style={{ marginBottom: 'env(safe-area-inset-bottom, 0)' }}
-        >
-          <Plus className="w-6 h-6" />
-        </button>
-      )}
     </div>
   );
 };

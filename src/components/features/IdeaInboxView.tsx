@@ -137,14 +137,32 @@ const IdeaInboxView: React.FC = () => {
   return (
     <div className="space-y-8 animate-enter">
       {/* Header - Matching Travel Plans */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-white mb-2">Idea Inbox</h2>
+      <div className="flex justify-between items-center">
+        <div className="flex-1">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-xl sm:text-2xl font-bold text-white">Idea Inbox</h2>
+            {/* Mobile: Add and Filter buttons beside title */}
+            <div className="sm:hidden flex items-center gap-2">
+              <button
+                onClick={() => setIsFilterOpen(true)}
+                className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white flex items-center justify-center transition-all flex-shrink-0"
+              >
+                <Filter className="w-4 h-4" />
+              </button>
+              <button
+                onClick={openCreateForm}
+                className="w-8 h-8 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white flex items-center justify-center transition-all shadow-md shadow-indigo-500/30 flex-shrink-0"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
           <p className="text-gray-400 text-sm">A place for thoughts you don't want to lose.</p>
         </div>
+        {/* Desktop/Tablet: Show button in header */}
         <button
           onClick={openCreateForm}
-          className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-5 py-2 rounded-xl text-sm font-bold transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-2"
+          className="hidden sm:flex bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-5 py-2 rounded-xl text-sm font-bold transition-all shadow-lg shadow-indigo-500/20 items-center gap-2"
         >
           <Plus className="w-4 h-4" />
           New Idea
@@ -269,16 +287,6 @@ const IdeaInboxView: React.FC = () => {
         </>
       )}
 
-      {/* Mobile: Filter Button */}
-      {screenSize === 'mobile' && (
-        <button
-          onClick={() => setIsFilterOpen(true)}
-          className="fixed bottom-32 right-4 w-12 h-12 rounded-full bg-[#151B28] border border-white/10 text-white shadow-lg flex items-center justify-center transition-all z-40"
-          style={{ marginBottom: 'env(safe-area-inset-bottom, 0)' }}
-        >
-          <Filter className="w-5 h-5" />
-        </button>
-      )}
 
       {/* Mobile: Filter Bottom Sheet */}
       {screenSize === 'mobile' && (
@@ -332,16 +340,6 @@ const IdeaInboxView: React.FC = () => {
         onDelete={handleDelete}
       />
 
-      {/* FAB for Mobile */}
-      {screenSize === 'mobile' && (
-        <button
-          onClick={openCreateForm}
-          className="fixed bottom-24 right-4 w-14 h-14 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/30 flex items-center justify-center transition-all z-40"
-          style={{ marginBottom: 'env(safe-area-inset-bottom, 0)' }}
-        >
-          <Plus className="w-6 h-6" />
-        </button>
-      )}
     </div>
   );
 };

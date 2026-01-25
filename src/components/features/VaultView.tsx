@@ -194,6 +194,12 @@ const VaultView: React.FC = () => {
     }
   };
 
+  const handleEditDocument = async (data: CreateVaultDocumentData) => {
+    // Note: Document update functionality not yet implemented in backend
+    // For now, treat edit as create (form will handle the state)
+    return handleCreateDocument(data);
+  };
+
   const handleDeleteDocument = async (id: string) => {
     if (!confirm('Are you sure you want to delete this document?')) {
       return;
@@ -279,15 +285,25 @@ const VaultView: React.FC = () => {
     <div className={`mx-auto animate-enter ${
       screenSize === 'mobile' ? 'space-y-4' : 'max-w-4xl space-y-8'
     }`}>
-      <div className={`flex justify-between items-center ${
-        screenSize === 'mobile' ? 'flex-col items-start gap-3' : ''
-      }`}>
-        <div>
-          <h2 className={`font-bold text-white flex items-center gap-2 ${
-            screenSize === 'mobile' ? 'text-xl' : 'text-2xl'
-          }`}>
-            <Shield className={`text-emerald-400 ${screenSize === 'mobile' ? 'w-5 h-5' : 'w-6 h-6'}`} /> Secure Vault
-          </h2>
+      <div className="flex justify-between items-center">
+        <div className="flex-1">
+          <div className="flex items-center justify-between">
+            <h2 className={`font-bold text-white flex items-center gap-2 ${
+              screenSize === 'mobile' ? 'text-xl' : 'text-2xl'
+            }`}>
+              <Shield className={`text-emerald-400 ${screenSize === 'mobile' ? 'w-5 h-5' : 'w-6 h-6'}`} /> 
+              <span>Secure Vault</span>
+            </h2>
+            {/* Mobile: Small add button on the right */}
+            {screenSize === 'mobile' && (
+              <button
+                onClick={activeTab === 'creds' ? openCreateCredForm : openCreateDocForm}
+                className="w-8 h-8 rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white flex items-center justify-center transition-all shadow-md shadow-emerald-500/30 flex-shrink-0 ml-3"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            )}
+          </div>
           <p className={`text-gray-400 ${screenSize === 'mobile' ? 'text-sm' : ''}`}>Shared credentials and important docs.</p>
         </div>
         {/* Desktop/Tablet: Show button in header */}
@@ -313,8 +329,10 @@ const VaultView: React.FC = () => {
 
       {/* Tabs - Horizontal scroll on mobile */}
       <div className={`flex p-1 bg-[#151B28] rounded-xl border border-white/5 ${
-        screenSize === 'mobile' ? 'overflow-x-auto scroll-smooth snap-x snap-mandatory w-full' : 'w-fit'
+        screenSize === 'mobile' ? 'overflow-x-auto scroll-smooth snap-x snap-mandatory w-full scrollbar-hide -mx-4 px-4' : 'w-fit'
       }`}>
+        {/* Spacer for proper left padding on mobile */}
+        {screenSize === 'mobile' && <div className="w-0.5 flex-shrink-0"></div>}
          <button 
            onClick={() => setActiveTab('creds')}
            className={`px-4 sm:px-6 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap snap-start ${activeTab === 'creds' ? 'bg-emerald-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
@@ -327,6 +345,8 @@ const VaultView: React.FC = () => {
          >
            Documents
          </button>
+        {/* Spacer for proper right padding on mobile */}
+        {screenSize === 'mobile' && <div className="w-0.5 flex-shrink-0"></div>}
       </div>
 
       {/* Error Message */}
@@ -461,8 +481,9 @@ const VaultView: React.FC = () => {
         <>
           {/* Category Filter */}
           <div className={`flex gap-2 ${
-            screenSize === 'mobile' ? 'overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-hide pb-2' : 'flex-wrap'
+            screenSize === 'mobile' ? 'overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-hide pb-2 -mx-4 px-4' : 'flex-wrap'
           }`}>
+            {screenSize === 'mobile' && <div className="w-0.5 flex-shrink-0"></div>}
             {categories.map(cat => (
               <button
                 key={cat.value}
@@ -476,6 +497,7 @@ const VaultView: React.FC = () => {
                 {cat.label}
               </button>
             ))}
+            {screenSize === 'mobile' && <div className="w-0.5 flex-shrink-0"></div>}
           </div>
 
           {/* Documents Grid */}
@@ -571,16 +593,6 @@ const VaultView: React.FC = () => {
         isLoading={isSubmittingDocs}
       />
 
-      {/* FAB for Mobile */}
-      {screenSize === 'mobile' && (
-        <button
-          onClick={activeTab === 'creds' ? openCreateCredForm : openCreateDocForm}
-          className="fixed bottom-24 right-4 w-14 h-14 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-lg shadow-emerald-500/30 flex items-center justify-center transition-all z-40"
-          style={{ marginBottom: 'env(safe-area-inset-bottom, 0)' }}
-        >
-          <Plus className="w-6 h-6" />
-        </button>
-      )}
     </div>
   );
 };

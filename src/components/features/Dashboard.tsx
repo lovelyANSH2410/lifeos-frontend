@@ -128,7 +128,14 @@ const Dashboard: React.FC<{ setActiveTab: (tab: Tab) => void }> = ({ setActiveTa
     return (
       <div className="space-y-4 animate-enter">
         {/* HEADER - Mobile */}
-        <div>
+        <div className="flex items-center gap-3 px-1">
+          {user?.profileImage && (
+            <img
+              src={typeof user.profileImage === 'string' ? user.profileImage : user.profileImage.url}
+              alt={user?.name || 'Profile'}
+              className="w-10 h-10 rounded-full object-cover border-2 border-white/10 flex-shrink-0"
+            />
+          )}
           <h1 className="text-2xl font-bold text-white">
             {dashboardData.greeting.message} 👋
           </h1>
@@ -137,7 +144,7 @@ const Dashboard: React.FC<{ setActiveTab: (tab: Tab) => void }> = ({ setActiveTa
         {/* PRIORITY STRIP - Horizontal Scroll */}
         {upcomingItems.length > 0 && (
           <div className="overflow-x-auto scroll-smooth snap-x snap-mandatory -mx-4 px-4 pb-2 scrollbar-hide">
-            <div className="flex gap-3" style={{ width: 'max-content' }}>
+            <div className="flex gap-3 pl-1" style={{ width: 'max-content' }}>
               {upcomingItems.map((item, index) => {
                 if (item?.type === 'payment') {
                   const payment = item.data as typeof dashboardData.upcoming.nextPayment;
@@ -386,11 +393,20 @@ const Dashboard: React.FC<{ setActiveTab: (tab: Tab) => void }> = ({ setActiveTa
     return (
       <div className="space-y-4 animate-enter">
         {/* HEADER - Tablet */}
-        <div>
-          <h1 className="text-3xl font-bold text-white mb-2">
-            {dashboardData.greeting.message} 👋
-          </h1>
-          <p className="text-gray-400 text-sm">Here's a quick look at what matters today</p>
+        <div className="flex items-center gap-4">
+          {user?.profileImage && (
+            <img
+              src={typeof user.profileImage === 'string' ? user.profileImage : user.profileImage.url}
+              alt={user?.name || 'Profile'}
+              className="w-12 h-12 rounded-full object-cover border-2 border-white/10 flex-shrink-0"
+            />
+          )}
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-2">
+              {dashboardData.greeting.message} 👋
+            </h1>
+            <p className="text-gray-400 text-sm">Here's a quick look at what matters today</p>
+          </div>
         </div>
 
         {/* Row 1: Money Snapshot + Upcoming */}
@@ -579,11 +595,20 @@ const Dashboard: React.FC<{ setActiveTab: (tab: Tab) => void }> = ({ setActiveTa
   return (
     <div className="space-y-6 animate-enter">
       {/* HEADER */}
-      <div>
-        <h1 className="text-4xl font-bold text-white mb-2">
-          {dashboardData.greeting.message} 👋
-        </h1>
-        <p className="text-gray-400 text-lg">Here's a quick look at what matters today</p>
+      <div className="flex items-center gap-4">
+        {user?.profileImage && (
+          <img
+            src={typeof user.profileImage === 'string' ? user.profileImage : user.profileImage.url}
+            alt={user?.name || 'Profile'}
+            className="w-16 h-16 rounded-full object-cover border-2 border-white/10 flex-shrink-0"
+          />
+        )}
+        <div>
+          <h1 className="text-4xl font-bold text-white mb-2">
+            {dashboardData.greeting.message} 👋
+          </h1>
+          <p className="text-gray-400 text-lg">Here's a quick look at what matters today</p>
+        </div>
       </div>
 
       {/* UPCOMING - Horizontal Cards */}

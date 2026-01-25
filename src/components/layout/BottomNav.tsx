@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
-import { LayoutDashboard, Wallet, Plus, Plane, MoreHorizontal, Film, Lightbulb, Book, Shield, Heart, Repeat } from 'lucide-react';
+import { LayoutDashboard, Wallet, Plus, Plane, MoreHorizontal, Film, Lightbulb, Book, Shield, Heart, Repeat, Crown } from 'lucide-react';
 import { Tab } from '@/types';
 import BottomSheet from '@/components/common/BottomSheet';
+import { useAuth } from '@/contexts/AuthContext';
+import { getUserSubscription } from '@/services/userSubscription.service';
+import type { UserSubscription } from '@/types';
 
 interface BottomNavProps {
   activeTab: Tab;
@@ -10,7 +13,24 @@ interface BottomNavProps {
 }
 
 const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, onCaptureClick }) => {
+  const { user } = useAuth();
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
+  const [userSubscription, setUserSubscription] = useState<UserSubscription | null>(null);
+
+  // Fetch subscription on mount
+  React.useEffect(() => {
+    const fetchSubscription = async () => {
+      try {
+        const response = await getUserSubscription();
+        setUserSubscription(response.data);
+      } catch (err) {
+        console.error('Error fetching subscription:', err);
+      }
+    };
+    if (user) {
+      fetchSubscription();
+    }
+  }, [user]);
   
   const navItems = [
     { id: Tab.Dashboard, icon: LayoutDashboard, label: 'Dashboard' },
@@ -91,13 +111,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, onCapture
             <span className="text-[10px] font-medium relative z-10">More</span>
           </button>
           
-          {/* Floating Capture Button */}
-          <button
-            onClick={onCaptureClick}
-            className="absolute -top-6 left-1/2 transform -translate-x-1/2 w-14 h-14 rounded-full bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white shadow-lg shadow-rose-500/30 flex items-center justify-center transition-all z-20"
-          >
-            <Plus className="w-6 h-6" />
-          </button>
+          {/* Capture button removed - now shown in header beside section name on mobile */}
         </div>
       </div>
 
@@ -108,6 +122,20 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, onCapture
         title="More"
       >
         <div className="p-4 space-y-2">
+          {/* Upgrade Button for FREE plan users */}
+          {userSubscription && userSubscription.plan === 'FREE' && (
+            <button
+              onClick={() => {
+                onTabChange(Tab.SubscriptionPlans);
+                setIsMoreMenuOpen(false);
+              }}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700 transition-all font-medium mb-2"
+            >
+              <Crown className="w-5 h-5" />
+              <span>Upgrade to Pro</span>
+            </button>
+          )}
+          
           {moreMenuItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;

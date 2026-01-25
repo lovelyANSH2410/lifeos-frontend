@@ -139,13 +139,27 @@ const SubscriptionsView: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-enter">
-      <div className="flex justify-between items-end">
-        <div>
-          <h2 className="text-2xl font-bold text-white mb-2">Subscriptions Manager</h2>
-          <p className="text-gray-400">Recurring expenses audit.</p>
+    <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 animate-enter">
+      {/* Header - Mobile optimized */}
+      <div className={`${screenSize === 'mobile' ? 'space-y-4' : 'flex justify-between items-end'}`}>
+        <div className="flex-1">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-xl sm:text-2xl font-bold text-white">Subscriptions Manager</h2>
+            {/* Mobile: Small add button beside title */}
+            <button
+              onClick={() => {
+                setEditingSubscription(null);
+                setIsFormOpen(true);
+              }}
+              className="sm:hidden w-8 h-8 rounded-lg bg-white hover:bg-gray-200 text-black flex items-center justify-center transition-all shadow-md flex-shrink-0 ml-3"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
+          <p className="text-gray-400 text-sm sm:text-base">Recurring expenses audit.</p>
         </div>
-        <div className="flex items-center gap-4">
+        {/* Monthly Total - Hidden on mobile, shown on tablet+ */}
+        <div className={`${screenSize === 'mobile' ? 'hidden' : 'flex'} items-center gap-4`}>
           <div className="text-right">
             <p className="text-sm text-gray-400 uppercase tracking-widest">Monthly Total</p>
             {summary ? (
@@ -177,28 +191,61 @@ const SubscriptionsView: React.FC = () => {
         </div>
       </div>
 
+      {/* Mobile: Monthly Total Card */}
+      {screenSize === 'mobile' && summary && (
+        <div className="modern-card p-4 rounded-xl">
+          <p className="text-[10px] sm:text-xs text-gray-400 uppercase tracking-widest mb-1">Monthly Total</p>
+          <p className="text-xl sm:text-2xl font-bold text-white">
+            {summary.monthlyTotal.toLocaleString('en-US', {
+              style: 'currency',
+              currency: defaultCurrency
+            })}
+          </p>
+        </div>
+      )}
+
       {/* Filter Tabs */}
-      <div className="flex gap-2">
-        {(['all', 'active', 'paused', 'cancelled'] as const).map((status) => (
-          <button
-            key={status}
-            onClick={() => setFilter(status)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              filter === status
-                ? 'bg-indigo-500 text-white'
-                : 'bg-white/5 text-gray-400 hover:bg-white/10'
-            }`}
-          >
-            {status.charAt(0).toUpperCase() + status.slice(1)}
-          </button>
-        ))}
-      </div>
+      {screenSize === 'mobile' ? (
+        <div className="overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-hide -mx-4 px-4 pb-2">
+          <div className="flex gap-2 pl-1" style={{ width: 'max-content' }}>
+            {(['all', 'active', 'paused', 'cancelled'] as const).map((status) => (
+              <button
+                key={status}
+                onClick={() => setFilter(status)}
+                className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap snap-start ${
+                  filter === status
+                    ? 'bg-indigo-500 text-white'
+                    : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                }`}
+              >
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="flex gap-2">
+          {(['all', 'active', 'paused', 'cancelled'] as const).map((status) => (
+            <button
+              key={status}
+              onClick={() => setFilter(status)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                filter === status
+                  ? 'bg-indigo-500 text-white'
+                  : 'bg-white/5 text-gray-400 hover:bg-white/10'
+              }`}
+            >
+              {status.charAt(0).toUpperCase() + status.slice(1)}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Error State */}
       {error && (
-        <div className="flex items-center gap-2 p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400">
-          <AlertCircle className="w-5 h-5" />
-          <span>{error}</span>
+        <div className={`flex items-center gap-2 ${screenSize === 'mobile' ? 'p-3' : 'p-4'} bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400`}>
+          <AlertCircle className={`${screenSize === 'mobile' ? 'w-4 h-4' : 'w-5 h-5'} flex-shrink-0`} />
+          <span className={`${screenSize === 'mobile' ? 'text-xs' : 'text-sm'}`}>{error}</span>
         </div>
       )}
 
@@ -209,9 +256,9 @@ const SubscriptionsView: React.FC = () => {
         </div>
       ) : subscriptions.length === 0 ? (
         <div className="text-center py-20">
-          <Repeat className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-          <p className="text-gray-400 text-lg mb-2">No subscriptions yet</p>
-          <p className="text-gray-500 text-sm">Start tracking your recurring expenses</p>
+          <Repeat className={`${screenSize === 'mobile' ? 'w-12 h-12' : 'w-16 h-16'} text-gray-600 mx-auto mb-4`} />
+          <p className={`text-gray-400 ${screenSize === 'mobile' ? 'text-base' : 'text-lg'} mb-2`}>No subscriptions yet</p>
+          <p className={`text-gray-500 ${screenSize === 'mobile' ? 'text-xs' : 'text-sm'}`}>Start tracking your recurring expenses</p>
         </div>
       ) : (
         <>
@@ -224,14 +271,14 @@ const SubscriptionsView: React.FC = () => {
               : 'grid-cols-1 md:grid-cols-2'
           }`}>
             {subscriptions.map(sub => (
-              <div key={sub._id} className="modern-card p-5 flex items-center justify-between group">
-                <div className="flex items-center gap-4 flex-1">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg ${categoryColors[sub.category] || categoryColors.other}`}>
+              <div key={sub._id} className={`modern-card ${screenSize === 'mobile' ? 'p-4' : 'p-5'} flex items-center justify-between group`}>
+                <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                  <div className={`${screenSize === 'mobile' ? 'w-10 h-10 text-lg' : 'w-12 h-12 text-xl'} rounded-xl flex items-center justify-center text-white font-bold shadow-lg flex-shrink-0 ${categoryColors[sub.category] || categoryColors.other}`}>
                     {sub.icon || categoryEmojis[sub.category] || '📦'}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-white text-lg truncate">{sub.name}</h3>
-                    <div className="flex items-center gap-2 mt-1">
+                    <h3 className={`font-bold text-white ${screenSize === 'mobile' ? 'text-base' : 'text-lg'} truncate`}>{sub.name}</h3>
+                    <div className={`flex items-center ${screenSize === 'mobile' ? 'flex-col items-start' : 'gap-2'} gap-1 mt-1`}>
                       <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">
                         Renews {formatDate(sub.renewalDate)}
                       </p>
@@ -253,8 +300,8 @@ const SubscriptionsView: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                <div className="text-right ml-4">
-                  <p className="text-xl font-bold text-white">
+                <div className={`text-right ${screenSize === 'mobile' ? 'ml-2' : 'ml-4'} flex-shrink-0`}>
+                  <p className={`${screenSize === 'mobile' ? 'text-lg' : 'text-xl'} font-bold text-white`}>
                     {getMonthlyCost(sub).toLocaleString('en-US', {
                       style: 'currency',
                       currency: defaultCurrency
@@ -263,21 +310,21 @@ const SubscriptionsView: React.FC = () => {
                       /{sub.billingCycle === 'yearly' ? 'mo' : 'mo'}
                     </span>
                   </p>
-                  <div className="flex justify-end gap-2 mt-2">
+                  <div className={`flex justify-end gap-2 mt-2 ${screenSize === 'mobile' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                     <button
                       onClick={() => handleEdit(sub)}
-                      className="p-1.5 hover:bg-indigo-500/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                      className="p-1.5 hover:bg-indigo-500/10 rounded-lg transition-colors"
                       title="Edit"
                     >
-                      <Edit2 className="w-4 h-4 text-gray-400 hover:text-indigo-400" />
+                      <Edit2 className={`${screenSize === 'mobile' ? 'w-3.5 h-3.5' : 'w-4 h-4'} text-gray-400 hover:text-indigo-400`} />
                     </button>
                     {sub.status !== 'cancelled' && (
                       <button
                         onClick={() => handleDelete(sub._id)}
-                        className="p-1.5 hover:bg-rose-500/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                        className="p-1.5 hover:bg-rose-500/10 rounded-lg transition-colors"
                         title="Cancel"
                       >
-                        <Trash2 className="w-4 h-4 text-gray-400 hover:text-rose-400" />
+                        <Trash2 className={`${screenSize === 'mobile' ? 'w-3.5 h-3.5' : 'w-4 h-4'} text-gray-400 hover:text-rose-400`} />
                       </button>
                     )}
                   </div>
@@ -288,23 +335,23 @@ const SubscriptionsView: React.FC = () => {
 
           {/* Summary Section */}
           {summary && summary.upcomingRenewals.length > 0 && (
-            <div className="modern-card p-6">
+            <div className={`modern-card ${screenSize === 'mobile' ? 'p-4' : 'p-6'}`}>
               <div className="flex items-center gap-2 mb-4">
-                <Calendar className="w-5 h-5 text-indigo-400" />
-                <h3 className="text-lg font-bold text-white">Upcoming Renewals (Next 7 Days)</h3>
+                <Calendar className={`${screenSize === 'mobile' ? 'w-4 h-4' : 'w-5 h-5'} text-indigo-400`} />
+                <h3 className={`${screenSize === 'mobile' ? 'text-base' : 'text-lg'} font-bold text-white`}>Upcoming Renewals (Next 7 Days)</h3>
               </div>
               <div className="space-y-3">
                 {summary.upcomingRenewals.map(renewal => {
                   const sub = subscriptions.find(s => s._id === renewal._id);
                   return (
-                    <div key={renewal._id} className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                    <div key={renewal._id} className={`flex items-center justify-between ${screenSize === 'mobile' ? 'p-2.5' : 'p-3'} bg-white/5 rounded-lg`}>
                       <div>
-                        <p className="text-white font-medium">{renewal.name}</p>
+                        <p className={`text-white ${screenSize === 'mobile' ? 'text-sm' : ''} font-medium`}>{renewal.name}</p>
                         <p className="text-xs text-gray-400">
                           {formatDate(renewal.renewalDate)}
                         </p>
                       </div>
-                      <p className="text-white font-bold">
+                      <p className={`text-white ${screenSize === 'mobile' ? 'text-sm' : ''} font-bold`}>
                         {renewal.amount.toLocaleString('en-US', {
                           style: 'currency',
                           currency: defaultCurrency
@@ -319,17 +366,17 @@ const SubscriptionsView: React.FC = () => {
 
           {/* Optimization Tips */}
           {summary && summary.optimizationTips.length > 0 && (
-            <div className="p-4 rounded-xl bg-indigo-500/10 border border-indigo-500/20 space-y-3">
+            <div className={`${screenSize === 'mobile' ? 'p-3' : 'p-4'} rounded-xl bg-indigo-500/10 border border-indigo-500/20 space-y-3`}>
               <div className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-indigo-400 shrink-0" />
-                <h4 className="text-sm font-bold text-indigo-300">Optimization Tips</h4>
+                <TrendingUp className={`${screenSize === 'mobile' ? 'w-4 h-4' : 'w-5 h-5'} text-indigo-400 shrink-0`} />
+                <h4 className={`${screenSize === 'mobile' ? 'text-xs' : 'text-sm'} font-bold text-indigo-300`}>Optimization Tips</h4>
               </div>
               {summary.optimizationTips.map((tip, index) => (
-                <div key={index} className="pl-7">
-                  <p className="text-xs text-indigo-200/80">
+                <div key={index} className={`${screenSize === 'mobile' ? 'pl-5' : 'pl-7'}`}>
+                  <p className={`${screenSize === 'mobile' ? 'text-[10px]' : 'text-xs'} text-indigo-200/80`}>
                     <span className="font-semibold">{tip.subscriptionName}:</span> {tip.suggestion}
                   </p>
-                  <p className="text-xs text-indigo-200/60 mt-1">
+                  <p className={`${screenSize === 'mobile' ? 'text-[10px]' : 'text-xs'} text-indigo-200/60 mt-1`}>
                     Potential savings: {tip.potentialSavings.toLocaleString('en-US', {
                       style: 'currency',
                       currency: defaultCurrency
@@ -354,19 +401,6 @@ const SubscriptionsView: React.FC = () => {
         isLoading={isSubmitting}
       />
 
-      {/* FAB for Mobile */}
-      {screenSize === 'mobile' && (
-        <button
-          onClick={() => {
-            setEditingSubscription(null);
-            setIsFormOpen(true);
-          }}
-          className="fixed bottom-24 right-4 w-14 h-14 rounded-full bg-white hover:bg-gray-200 text-black shadow-lg flex items-center justify-center transition-all z-40"
-          style={{ marginBottom: 'env(safe-area-inset-bottom, 0)' }}
-        >
-          <Plus className="w-6 h-6" />
-        </button>
-      )}
     </div>
   );
 };

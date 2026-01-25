@@ -7,10 +7,25 @@ export enum Tab {
   Subscriptions = 'Subscriptions',
   Travel = 'Travel',
   Journal = 'Journal',
-  Ideas = 'Ideas'
+  Ideas = 'Ideas',
+  SubscriptionPlans = 'SubscriptionPlans'
 }
 
 export type Plan = 'Free' | 'Couple' | 'Pro';
+
+// User Subscription types
+export type SubscriptionPlan = 'FREE' | 'PRO' | 'COUPLE' | 'LIFETIME';
+export type BillingCycle = 'MONTHLY' | 'YEARLY' | 'NONE';
+
+export interface UserSubscription {
+  plan: SubscriptionPlan;
+  billingCycle: BillingCycle;
+  price: number;
+  startedAt: string | null;
+  expiresAt: string | null;
+  isActive: boolean;
+  daysRemaining: number | null;
+}
 
 // Watch types (for Movies & Series)
 export interface WatchItemPoster {
@@ -512,6 +527,13 @@ export interface User {
   role: string;
   isActive: boolean;
   currency?: string;
+  profileImage?: string | {
+    publicId: string;
+    url: string;
+    width?: number;
+    height?: number;
+    format?: string;
+  };
   lastLogin?: string;
   createdAt?: string;
   updatedAt?: string;

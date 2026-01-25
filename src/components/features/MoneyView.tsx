@@ -27,13 +27,15 @@ const MoneyView: React.FC = () => {
     <div className="space-y-8 animate-enter">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-white">Money Management</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-white">Money Management</h2>
           <p className="text-gray-400">Track your finances, one transaction at a time.</p>
         </div>
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex gap-2 overflow-x-auto pb-2 scroll-smooth snap-x snap-mandatory -mx-4 px-4">
+      <div className="flex gap-2 overflow-x-auto pb-2 scroll-smooth snap-x snap-mandatory -mx-4 px-4 scrollbar-hide">
+        {/* Spacer for proper left padding */}
+        <div className="w-0.5 flex-shrink-0"></div>
         {tabs.map(tab => {
           const Icon = tab.icon;
           return (
@@ -52,6 +54,8 @@ const MoneyView: React.FC = () => {
             </button>
           );
         })}
+        {/* Spacer for proper right padding */}
+        <div className="w-0.5 flex-shrink-0"></div>
       </div>
 
       {/* Tab Content */}

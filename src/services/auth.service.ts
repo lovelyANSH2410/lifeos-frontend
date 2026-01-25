@@ -128,14 +128,30 @@ export const getProfile = async (): Promise<{ success: boolean; message: string;
 /**
  * Update user profile
  */
-export const updateProfile = async (updateData: { name?: string; currency?: string }): Promise<{ success: boolean; message: string; data: User }> => {
-  return await apiRequest<{ success: boolean; message: string; data: User }>(
-    AUTH_ENDPOINTS.UPDATE_PROFILE,
-    {
-      method: 'PATCH',
-      body: JSON.stringify(updateData),
-    }
-  );
+export const updateProfile = async (updateData: { name?: string; currency?: string; profileImage?: File }): Promise<{ success: boolean; message: string; data: User }> => {
+  const token = getAuthToken();
+  
+  const formData = new FormData();
+  if (updateData.name) formData.append('name', updateData.name);
+  if (updateData.currency) formData.append('currency', updateData.currency);
+  if (updateData.profileImage) formData.append('profileImage', updateData.profileImage);
+
+  const response = await fetch(`${API_BASE_URL}${AUTH_ENDPOINTS.UPDATE_PROFILE}`, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    const error: ApiError = data;
+    throw new Error(error.message || 'An error occurred');
+  }
+
+  return data as { success: boolean; message: string; data: User };
 };
 
 /**

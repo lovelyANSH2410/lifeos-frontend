@@ -247,8 +247,17 @@ const TravelView: React.FC = () => {
     <div className="space-y-8 animate-enter">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-white mb-2">Travel Plans</h2>
+        <div className="flex-1">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-xl sm:text-2xl font-bold text-white">Travel Plans</h2>
+            {/* Mobile: Small add button beside title */}
+            <button
+              onClick={openCreateForm}
+              className="sm:hidden w-8 h-8 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white flex items-center justify-center transition-all shadow-md shadow-indigo-500/30 flex-shrink-0 ml-3"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
           {summary && (
             <div className="flex gap-4 text-sm text-gray-400">
               <span>{summary.upcomingCount} Upcoming</span>
@@ -499,16 +508,6 @@ const TravelView: React.FC = () => {
         isLoading={isSubmitting}
       />
 
-      {/* FAB for Mobile */}
-      {screenSize === 'mobile' && (
-        <button
-          onClick={openCreateForm}
-          className="fixed bottom-24 right-4 w-14 h-14 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/30 flex items-center justify-center transition-all z-40"
-          style={{ marginBottom: 'env(safe-area-inset-bottom, 0)' }}
-        >
-          <Plus className="w-6 h-6" />
-        </button>
-      )}
     </div>
   );
 };

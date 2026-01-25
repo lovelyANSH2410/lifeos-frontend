@@ -143,13 +143,23 @@ const JournalView: React.FC = () => {
   return (
     <div className="max-w-3xl mx-auto space-y-8 animate-enter">
       <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-white">Memory Vault</h2>
+        <div className="flex-1">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl sm:text-2xl font-bold text-white">Memory Vault</h2>
+            {/* Mobile: Small add button beside title */}
+            <button
+              onClick={() => setIsFormOpen(true)}
+              className="sm:hidden w-8 h-8 rounded-lg bg-white hover:bg-gray-200 text-black flex items-center justify-center transition-all shadow-md flex-shrink-0 ml-3"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
           <p className="text-gray-400">Your digital diary.</p>
         </div>
+        {/* Desktop/Tablet: Show button in header */}
         <button
           onClick={() => setIsFormOpen(true)}
-          className="bg-white text-black px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-gray-200 transition-colors flex items-center gap-2"
+          className="hidden sm:flex bg-white text-black px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-gray-200 transition-colors items-center gap-2"
         >
           <BookOpen className="w-4 h-4" /> New Entry
         </button>
@@ -311,16 +321,6 @@ const JournalView: React.FC = () => {
         isLoading={isSubmitting}
       />
 
-      {/* FAB for Mobile */}
-      {screenSize === 'mobile' && (
-        <button
-          onClick={() => setIsFormOpen(true)}
-          className="fixed bottom-24 right-4 w-14 h-14 rounded-full bg-white hover:bg-gray-200 text-black shadow-lg flex items-center justify-center transition-all z-40"
-          style={{ marginBottom: 'env(safe-area-inset-bottom, 0)' }}
-        >
-          <Plus className="w-6 h-6" />
-        </button>
-      )}
     </div>
   );
 };
