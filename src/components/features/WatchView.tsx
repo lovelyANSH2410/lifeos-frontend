@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Film, Tv, BookOpen, Zap, Video, Plus, Loader2, AlertCircle, Edit2, Trash2, Star, Play, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { createWatchItem, getWatchItems, updateWatchItem, updateWatchProgress, deleteWatchItem } from '@/services/watch.service';
+import { useScreenSize } from '@/hooks/useScreenSize';
 import type { WatchItem, CreateWatchItemData, UpdateWatchProgressData } from '@/types';
 import WatchItemForm from './WatchItemForm';
 
@@ -50,6 +51,7 @@ const WatchView: React.FC = () => {
   const [editingItem, setEditingItem] = useState<WatchItem | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
+  const screenSize = useScreenSize();
 
   // Fetch items
   const fetchItems = async () => {
@@ -181,12 +183,13 @@ const WatchView: React.FC = () => {
     <div className="space-y-8 animate-enter">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-white">Movies & Series</h2>
-          <p className="text-gray-400">Track what you watch.</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-white">Movies & Series</h2>
+          <p className="text-gray-400 text-sm sm:text-base">Track what you watch.</p>
         </div>
+        {/* Desktop/Tablet: Show button in header */}
         <button
           onClick={openCreateForm}
-          className="bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white px-5 py-2 rounded-xl text-sm font-bold transition-all shadow-lg shadow-rose-500/20 flex items-center gap-2"
+          className="hidden sm:flex bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white px-5 py-2 rounded-xl text-sm font-bold transition-all shadow-lg shadow-rose-500/20 items-center gap-2"
         >
           <Plus className="w-4 h-4" />
           Add Item
@@ -251,7 +254,13 @@ const WatchView: React.FC = () => {
           <span className="text-sm text-gray-500 mt-2">Click to add your first item</span>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className={`grid gap-4 sm:gap-6 ${
+          screenSize === 'mobile' 
+            ? 'grid-cols-2' 
+            : screenSize === 'tablet' 
+            ? 'grid-cols-3' 
+            : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+        }`}>
           {items.map(item => {
             const TypeIcon = typeIcons[item.type] || Film;
             const StatusIcon = statusIcons[item.status] || Clock;
@@ -352,17 +361,17 @@ const WatchView: React.FC = () => {
                   {/* Platforms */}
                   {item.platforms && item.platforms.length > 0 && (
                     <div className="flex flex-wrap gap-1 mb-3">
-                      {item.platforms.slice(0, 3).map((platform, idx) => (
+                      {item.platforms.slice(0, screenSize === 'mobile' ? 2 : 3).map((platform, idx) => (
                         <span
                           key={idx}
-                          className="px-2 py-0.5 bg-white/5 rounded text-xs text-gray-400"
+                          className={`px-2 py-0.5 bg-white/5 rounded text-xs text-gray-400 ${screenSize === 'mobile' ? 'hidden sm:inline' : ''}`}
                         >
                           {platform}
                         </span>
                       ))}
-                      {item.platforms.length > 3 && (
+                      {item.platforms.length > (screenSize === 'mobile' ? 2 : 3) && (
                         <span className="px-2 py-0.5 bg-white/5 rounded text-xs text-gray-400">
-                          +{item.platforms.length - 3}
+                          +{item.platforms.length - (screenSize === 'mobile' ? 2 : 3)}
                         </span>
                       )}
                     </div>
@@ -406,6 +415,17 @@ const WatchView: React.FC = () => {
         item={editingItem}
         isLoading={isSubmitting}
       />
+
+      {/* FAB for Mobile */}
+      {screenSize === 'mobile' && (
+        <button
+          onClick={openCreateForm}
+          className="fixed bottom-24 right-4 w-14 h-14 rounded-full bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white shadow-lg shadow-rose-500/30 flex items-center justify-center transition-all z-40"
+          style={{ marginBottom: 'env(safe-area-inset-bottom, 0)' }}
+        >
+          <Plus className="w-6 h-6" />
+        </button>
+      )}
     </div>
   );
 };

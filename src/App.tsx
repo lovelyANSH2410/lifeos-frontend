@@ -21,6 +21,8 @@ import {
 import { Tab, Plan } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import SidebarItem from '@/components/common/SidebarItem';
+import BottomNav from '@/components/layout/BottomNav';
+import CaptureModal from '@/components/common/CaptureModal';
 import Login from '@/components/auth/Login';
 import Dashboard from '@/components/features/Dashboard';
 import WatchView from '@/components/features/WatchView';
@@ -32,6 +34,7 @@ import SubscriptionsView from '@/components/features/SubscriptionsView';
 import JournalView from '@/components/features/JournalView';
 import IdeaInboxView from '@/components/features/IdeaInboxView';
 import ProfileModal from './components/features/ProfileModal';
+import { useScreenSize } from '@/hooks/useScreenSize';
 
 const App: React.FC = () => {
   const { isAuthenticated, isLoading, user, logout } = useAuth();
@@ -39,6 +42,8 @@ const App: React.FC = () => {
   const [currentPlan, setCurrentPlan] = useState<Plan>('Couple');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isCaptureOpen, setIsCaptureOpen] = useState(false);
+  const screenSize = useScreenSize();
 
   // Show loading state
   if (isLoading) {
@@ -66,7 +71,7 @@ const App: React.FC = () => {
         ${isSidebarOpen ? 'w-64' : 'w-20'} 
         transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]
         border-r border-white/5
-        bg-[#0F131F] z-40 hidden md:flex flex-col
+        bg-[#0F131F] z-40 hidden sm:flex flex-col
       `}>
         <div className="h-20 flex items-center px-6 border-b border-white/5">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/20">
@@ -169,8 +174,8 @@ const App: React.FC = () => {
         </header>
 
         {/* Scrollable Canvas */}
-        <main className="flex-1 overflow-y-auto custom-scrollbar relative z-10">
-          <div className="max-w-7xl mx-auto p-6 md:p-8 lg:p-10">
+        <main className="flex-1 overflow-y-auto custom-scrollbar relative z-10 pb-20 sm:pb-0">
+          <div className="max-w-7xl mx-auto p-4 sm:p-6 md:p-8 lg:p-10">
             <div className="animate-enter">
               {activeTab === Tab.Dashboard && <Dashboard setActiveTab={setActiveTab} />}
               {activeTab === Tab.Entertainment && <WatchView />}
@@ -185,6 +190,22 @@ const App: React.FC = () => {
           </div>
         </main>
       </div>
+
+      {/* Bottom Navigation (Mobile Only) */}
+      {screenSize === 'mobile' && (
+        <BottomNav
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          onCaptureClick={() => setIsCaptureOpen(true)}
+        />
+      )}
+
+      {/* Capture Modal */}
+      <CaptureModal
+        isOpen={isCaptureOpen}
+        onClose={() => setIsCaptureOpen(false)}
+        onNavigate={setActiveTab}
+      />
 
       {/* Profile Modal */}
       <ProfileModal

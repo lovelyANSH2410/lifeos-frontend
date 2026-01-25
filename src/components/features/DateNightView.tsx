@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Heart, Gift, MapPin, ExternalLink, Plus, Coffee, Home, Loader2, AlertCircle, Edit2, Trash2, Star, Sparkles } from 'lucide-react';
 import { createGiftIdea, getGiftIdeas, updateGiftIdea, deleteGiftIdea } from '@/services/gifting.service';
 import { useAuth } from '@/contexts/AuthContext';
+import { useScreenSize } from '@/hooks/useScreenSize';
 import type { GiftIdea, CreateGiftIdeaData } from '@/types';
 import GiftIdeaForm from './GiftIdeaForm';
 
@@ -34,6 +35,7 @@ const DateNightView: React.FC = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingIdea, setEditingIdea] = useState<GiftIdea | null>(null);
   const [filter, setFilter] = useState<string>('all');
+  const screenSize = useScreenSize();
 
   // Fetch ideas
   const fetchIdeas = async () => {
@@ -155,9 +157,10 @@ const DateNightView: React.FC = () => {
           <h2 className="text-2xl font-bold text-white">Gifting & Dates</h2>
           <p className="text-gray-400">Never run out of ideas.</p>
         </div>
+        {/* Desktop/Tablet: Show button in header */}
         <button
           onClick={openCreateForm}
-          className="bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white px-5 py-2 rounded-xl text-sm font-bold transition-all shadow-lg shadow-rose-500/20 flex items-center gap-2"
+          className="hidden sm:flex bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white px-5 py-2 rounded-xl text-sm font-bold transition-all shadow-lg shadow-rose-500/20 items-center gap-2"
         >
           <Plus className="w-4 h-4" />
           Add Idea
@@ -204,7 +207,13 @@ const DateNightView: React.FC = () => {
           <span className="text-sm text-gray-500 mt-2">Click to add your first idea</span>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className={`grid gap-4 sm:gap-6 ${
+          screenSize === 'mobile' 
+            ? 'grid-cols-2' 
+            : screenSize === 'tablet' 
+            ? 'grid-cols-3' 
+            : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+        }`}>
           {ideas.map(idea => {
             const TypeIcon = typeIcons[idea.type] || Gift;
             const mainImage = idea.images && idea.images.length > 0 ? idea.images[0].url : null;
@@ -352,6 +361,17 @@ const DateNightView: React.FC = () => {
         idea={editingIdea}
         isLoading={isSubmitting}
       />
+
+      {/* FAB for Mobile */}
+      {screenSize === 'mobile' && (
+        <button
+          onClick={openCreateForm}
+          className="fixed bottom-24 right-4 w-14 h-14 rounded-full bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white shadow-lg shadow-rose-500/30 flex items-center justify-center transition-all z-40"
+          style={{ marginBottom: 'env(safe-area-inset-bottom, 0)' }}
+        >
+          <Plus className="w-6 h-6" />
+        </button>
+      )}
     </div>
   );
 };

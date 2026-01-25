@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Camera, Calendar, BookOpen, Trash2, Loader2, AlertCircle, Image as ImageIcon, ChevronDown, ChevronUp } from 'lucide-react';
+import { Camera, Calendar, BookOpen, Trash2, Loader2, AlertCircle, Image as ImageIcon, ChevronDown, ChevronUp, Plus } from 'lucide-react';
 import { createDiaryEntry, getDiaryEntries, archiveDiaryEntry } from '@/services/diary.service';
+import { useScreenSize } from '@/hooks/useScreenSize';
 import type { DiaryEntry, CreateDiaryEntryData } from '@/types';
 import DiaryEntryForm from './DiaryEntryForm';
 
@@ -35,6 +36,7 @@ const JournalView: React.FC = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [expandedEntries, setExpandedEntries] = useState<Set<string>>(new Set());
+  const screenSize = useScreenSize();
 
   // Fetch entries
   const fetchEntries = async (pageNum: number = 1) => {
@@ -174,7 +176,14 @@ const JournalView: React.FC = () => {
         </div>
       ) : (
         <>
-          <div className="space-y-6 relative before:absolute before:left-4 before:top-0 before:bottom-0 before:w-0.5 before:bg-gray-800">
+          {/* Mobile: Timeline feed, Tablet: 2-column grid */}
+          <div className={`${
+            screenSize === 'mobile' 
+              ? 'space-y-6 relative before:absolute before:left-4 before:top-0 before:bottom-0 before:w-0.5 before:bg-gray-800' 
+              : screenSize === 'tablet' 
+              ? 'grid grid-cols-2 gap-6' 
+              : 'space-y-6 relative before:absolute before:left-4 before:top-0 before:bottom-0 before:w-0.5 before:bg-gray-800'
+          }`}>
             {entries.map(entry => (
               <div key={entry._id} className="relative pl-12 group">
                 <div className="absolute left-1.5 top-6 w-5 h-5 bg-[#0B0F17] border-2 border-gray-600 rounded-full group-hover:border-indigo-500 group-hover:bg-indigo-900 transition-colors z-10"></div>
@@ -232,7 +241,9 @@ const JournalView: React.FC = () => {
 
                   {/* Images */}
                   {entry.images && entry.images.length > 0 && (
-                    <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div className={`grid gap-3 mb-4 ${
+                      screenSize === 'mobile' ? 'grid-cols-2' : 'grid-cols-2'
+                    }`}>
                       {entry.images.slice(0, 4).map((image, index) => (
                         <div key={index} className="relative group/image">
                           <img
@@ -299,6 +310,17 @@ const JournalView: React.FC = () => {
         onSubmit={handleSubmit}
         isLoading={isSubmitting}
       />
+
+      {/* FAB for Mobile */}
+      {screenSize === 'mobile' && (
+        <button
+          onClick={() => setIsFormOpen(true)}
+          className="fixed bottom-24 right-4 w-14 h-14 rounded-full bg-white hover:bg-gray-200 text-black shadow-lg flex items-center justify-center transition-all z-40"
+          style={{ marginBottom: 'env(safe-area-inset-bottom, 0)' }}
+        >
+          <Plus className="w-6 h-6" />
+        </button>
+      )}
     </div>
   );
 };

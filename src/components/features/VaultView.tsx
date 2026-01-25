@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Shield, FileText, Key, Eye, EyeOff, Copy, Image as IconImage, Plus, Loader2, AlertCircle, Edit2, Trash2, Download, ExternalLink } from 'lucide-react';
 import { createVaultItem, getVaultItems, revealPassword, updateVaultItem, deleteVaultItem } from '@/services/vault.service';
 import { createVaultDocument, getVaultDocuments, getDocumentSignedUrl, deleteVaultDocument } from '@/services/document.service';
+import { useScreenSize } from '@/hooks/useScreenSize';
 import type { VaultItem, CreateVaultItemData, VaultDocument, CreateVaultDocumentData } from '@/types';
 import CredentialForm from './CredentialForm';
 import DocumentForm from './DocumentForm';
@@ -26,6 +27,7 @@ const VaultView: React.FC = () => {
   const [isDocFormOpen, setIsDocFormOpen] = useState(false);
   const [editingDocument, setEditingDocument] = useState<VaultDocument | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<string>('');
+  const screenSize = useScreenSize();
 
   // Fetch credentials only when credentials tab is active
   const fetchCredentials = async () => {
@@ -274,18 +276,25 @@ const VaultView: React.FC = () => {
   ];
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-enter">
-      <div className="flex justify-between items-center">
+    <div className={`mx-auto animate-enter ${
+      screenSize === 'mobile' ? 'space-y-4' : 'max-w-4xl space-y-8'
+    }`}>
+      <div className={`flex justify-between items-center ${
+        screenSize === 'mobile' ? 'flex-col items-start gap-3' : ''
+      }`}>
         <div>
-          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Shield className="w-6 h-6 text-emerald-400" /> Secure Vault
+          <h2 className={`font-bold text-white flex items-center gap-2 ${
+            screenSize === 'mobile' ? 'text-xl' : 'text-2xl'
+          }`}>
+            <Shield className={`text-emerald-400 ${screenSize === 'mobile' ? 'w-5 h-5' : 'w-6 h-6'}`} /> Secure Vault
           </h2>
-          <p className="text-gray-400">Shared credentials and important docs.</p>
+          <p className={`text-gray-400 ${screenSize === 'mobile' ? 'text-sm' : ''}`}>Shared credentials and important docs.</p>
         </div>
+        {/* Desktop/Tablet: Show button in header */}
         {activeTab === 'creds' && (
           <button
             onClick={openCreateCredForm}
-            className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-5 py-2 rounded-xl text-sm font-bold transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-2"
+            className="hidden sm:flex bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-5 py-2 rounded-xl text-sm font-bold transition-all shadow-lg shadow-emerald-500/20 items-center gap-2"
           >
             <Plus className="w-4 h-4" />
             Add Credential
@@ -294,7 +303,7 @@ const VaultView: React.FC = () => {
         {activeTab === 'docs' && (
           <button
             onClick={openCreateDocForm}
-            className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-5 py-2 rounded-xl text-sm font-bold transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-2"
+            className="hidden sm:flex bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-5 py-2 rounded-xl text-sm font-bold transition-all shadow-lg shadow-emerald-500/20 items-center gap-2"
           >
             <Plus className="w-4 h-4" />
             Upload Document
@@ -302,16 +311,19 @@ const VaultView: React.FC = () => {
         )}
       </div>
 
-      <div className="flex p-1 bg-[#151B28] rounded-xl border border-white/5 w-fit">
+      {/* Tabs - Horizontal scroll on mobile */}
+      <div className={`flex p-1 bg-[#151B28] rounded-xl border border-white/5 ${
+        screenSize === 'mobile' ? 'overflow-x-auto scroll-smooth snap-x snap-mandatory w-full' : 'w-fit'
+      }`}>
          <button 
            onClick={() => setActiveTab('creds')}
-           className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'creds' ? 'bg-emerald-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
+           className={`px-4 sm:px-6 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap snap-start ${activeTab === 'creds' ? 'bg-emerald-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
          >
            Credentials
          </button>
          <button 
            onClick={() => setActiveTab('docs')}
-           className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'docs' ? 'bg-emerald-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
+           className={`px-4 sm:px-6 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap snap-start ${activeTab === 'docs' ? 'bg-emerald-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
          >
            Documents
          </button>
@@ -339,51 +351,108 @@ const VaultView: React.FC = () => {
             </div>
           ) : (
             credentials.map(cred => (
-              <div key={cred._id} className="modern-card p-4 flex items-center justify-between group hover:border-emerald-500/30">
-                <div className="flex items-center gap-4 flex-1">
-                   <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center">
-                      <Key className="w-5 h-5 text-gray-400" />
-                   </div>
-                   <div className="flex-1">
-                      <h3 className="font-bold text-white">{cred.title}</h3>
-                      {cred.username && (
-                        <p className="text-xs text-gray-500">{cred.username}</p>
-                      )}
-                   </div>
-                </div>
-                <div className="flex items-center gap-3">
-                   <div className="bg-[#0B0F17] px-3 py-1.5 rounded border border-gray-700 font-mono text-sm text-gray-300 min-w-[120px] text-center">
-                      {revealedPasswords[cred._id] || '••••••••••••'}
-                   </div>
-                   <button 
-                     onClick={() => handleRevealPassword(cred._id)}
-                     className="text-gray-500 hover:text-white transition-colors"
-                     title={revealedPasswords[cred._id] ? 'Hide password' : 'Reveal password'}
-                   >
-                      {revealedPasswords[cred._id] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                   </button>
-                   <button 
-                     onClick={() => handleCopyPassword(cred._id)}
-                     className={`transition-colors ${copiedId === cred._id ? 'text-emerald-400' : 'text-gray-500 hover:text-emerald-400'}`}
-                     title="Copy password"
-                   >
-                      <Copy className="w-4 h-4" />
-                   </button>
-                   <button
-                     onClick={() => openEditCredForm(cred)}
-                     className="text-gray-500 hover:text-white transition-colors opacity-0 group-hover:opacity-100"
-                     title="Edit credential"
-                   >
-                     <Edit2 className="w-4 h-4" />
-                   </button>
-                   <button
-                     onClick={() => handleDeleteCredential(cred._id)}
-                     className="text-gray-500 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
-                     title="Delete credential"
-                   >
-                     <Trash2 className="w-4 h-4" />
-                   </button>
-                </div>
+              <div key={cred._id} className={`modern-card group hover:border-emerald-500/30 ${
+                screenSize === 'mobile' ? 'p-3' : 'p-4'
+              }`}>
+                {screenSize === 'mobile' ? (
+                  // Mobile: Vertical layout
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-gray-800 flex items-center justify-center flex-shrink-0">
+                        <Key className="w-4 h-4 text-gray-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-bold text-white truncate">{cred.title}</h3>
+                        {cred.username && (
+                          <p className="text-xs text-gray-500 truncate">{cred.username}</p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <button 
+                          onClick={() => handleRevealPassword(cred._id)}
+                          className="text-gray-500 hover:text-white transition-colors p-1"
+                          title={revealedPasswords[cred._id] ? 'Hide password' : 'Reveal password'}
+                        >
+                          {revealedPasswords[cred._id] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                        <button 
+                          onClick={() => handleCopyPassword(cred._id)}
+                          className={`transition-colors p-1 ${copiedId === cred._id ? 'text-emerald-400' : 'text-gray-500 hover:text-emerald-400'}`}
+                          title="Copy password"
+                        >
+                          <Copy className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 bg-[#0B0F17] px-3 py-2 rounded border border-gray-700 font-mono text-xs text-gray-300 text-center overflow-hidden">
+                        <span className="truncate block">{revealedPasswords[cred._id] || '••••••••••••'}</span>
+                      </div>
+                      <button
+                        onClick={() => openEditCredForm(cred)}
+                        className="text-gray-500 hover:text-white transition-colors p-2"
+                        title="Edit"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteCredential(cred._id)}
+                        className="text-gray-500 hover:text-red-400 transition-colors p-2"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  // Desktop/Tablet: Horizontal layout
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4 flex-1 min-w-0">
+                      <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center flex-shrink-0">
+                        <Key className="w-5 h-5 text-gray-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-base font-bold text-white truncate">{cred.title}</h3>
+                        {cred.username && (
+                          <p className="text-xs text-gray-500 truncate">{cred.username}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      <div className="bg-[#0B0F17] px-3 py-1.5 rounded border border-gray-700 font-mono text-sm text-gray-300 min-w-[120px] text-center">
+                        {revealedPasswords[cred._id] || '••••••••••••'}
+                      </div>
+                      <button 
+                        onClick={() => handleRevealPassword(cred._id)}
+                        className="text-gray-500 hover:text-white transition-colors"
+                        title={revealedPasswords[cred._id] ? 'Hide password' : 'Reveal password'}
+                      >
+                        {revealedPasswords[cred._id] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                      <button 
+                        onClick={() => handleCopyPassword(cred._id)}
+                        className={`transition-colors ${copiedId === cred._id ? 'text-emerald-400' : 'text-gray-500 hover:text-emerald-400'}`}
+                        title="Copy password"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => openEditCredForm(cred)}
+                        className="text-gray-500 hover:text-white transition-colors opacity-0 group-hover:opacity-100"
+                        title="Edit credential"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteCredential(cred._id)}
+                        className="text-gray-500 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
+                        title="Delete credential"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                )}
              </div>
             ))
           )}
@@ -391,12 +460,14 @@ const VaultView: React.FC = () => {
       ) : (
         <>
           {/* Category Filter */}
-          <div className="flex gap-2 flex-wrap">
+          <div className={`flex gap-2 ${
+            screenSize === 'mobile' ? 'overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-hide pb-2' : 'flex-wrap'
+          }`}>
             {categories.map(cat => (
               <button
                 key={cat.value}
                 onClick={() => setCategoryFilter(cat.value)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap snap-start ${
                   categoryFilter === cat.value
                     ? 'bg-emerald-500 text-white'
                     : 'bg-white/5 text-gray-400 hover:bg-white/10'
@@ -419,9 +490,17 @@ const VaultView: React.FC = () => {
               <span className="text-sm text-gray-500 mt-2">Click to upload your first document</span>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className={`grid gap-4 ${
+              screenSize === 'mobile' 
+                ? 'grid-cols-1' 
+                : screenSize === 'tablet' 
+                ? 'grid-cols-2' 
+                : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+            }`}>
               {documents.map(doc => (
-                <div key={doc._id} className="modern-card p-5 flex flex-col items-center justify-center text-center group hover:bg-[#1A2235] relative">
+                <div key={doc._id} className={`modern-card flex flex-col items-center justify-center text-center group hover:bg-[#1A2235] relative ${
+                  screenSize === 'mobile' ? 'p-4' : 'p-5'
+                }`}>
                   <div className="w-12 h-12 bg-gray-800 rounded-xl flex items-center justify-center mb-3">
                     {getFileIcon(doc.file.format)}
                   </div>
@@ -487,10 +566,21 @@ const VaultView: React.FC = () => {
           setIsDocFormOpen(false);
           setEditingDocument(null);
         }}
-        onSubmit={handleCreateDocument}
-        document={editingDocument}
+        onSubmit={editingDocument ? handleEditDocument : handleCreateDocument}
+        vaultDocument={editingDocument}
         isLoading={isSubmittingDocs}
       />
+
+      {/* FAB for Mobile */}
+      {screenSize === 'mobile' && (
+        <button
+          onClick={activeTab === 'creds' ? openCreateCredForm : openCreateDocForm}
+          className="fixed bottom-24 right-4 w-14 h-14 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-lg shadow-emerald-500/30 flex items-center justify-center transition-all z-40"
+          style={{ marginBottom: 'env(safe-area-inset-bottom, 0)' }}
+        >
+          <Plus className="w-6 h-6" />
+        </button>
+      )}
     </div>
   );
 };

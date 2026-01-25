@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Upload, Film, Tv, BookOpen, Zap, Video, Star, XCircle } from 'lucide-react';
+import { useScreenSize } from '@/hooks/useScreenSize';
+import BottomSheet from '@/components/common/BottomSheet';
 import type { CreateWatchItemData, WatchItem } from '@/types';
 
 interface WatchItemFormProps {
@@ -35,6 +37,8 @@ const WatchItemForm: React.FC<WatchItemFormProps> = ({
   item,
   isLoading = false
 }) => {
+  const screenSize = useScreenSize();
+  const isMobile = screenSize === 'mobile';
   const [formData, setFormData] = useState<Omit<CreateWatchItemData, 'poster'>>({
     title: item?.title || '',
     description: item?.description || '',
@@ -225,25 +229,8 @@ const WatchItemForm: React.FC<WatchItemFormProps> = ({
     await onSubmit(submitData);
   };
 
-  const modalContent = (
-    <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-[#0F131F] rounded-2xl border border-white/10 w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl">
-        {/* Header */}
-        <div className="sticky top-0 bg-[#0F131F] border-b border-white/10 p-6 flex items-center justify-between z-10">
-          <h2 className="text-xl font-bold text-white">
-            {item ? 'Edit Watch Item' : 'Add Watch Item'}
-          </h2>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-            disabled={isLoading}
-          >
-            <X className="w-5 h-5 text-gray-400" />
-          </button>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+  const formContent = (
+    <form onSubmit={handleSubmit} className={`space-y-6 ${isMobile ? 'p-6' : 'p-6'}`}>
           {/* Title */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -597,6 +584,42 @@ const WatchItemForm: React.FC<WatchItemFormProps> = ({
             </button>
           </div>
         </form>
+  );
+
+  if (!isOpen) return null;
+
+  // Mobile: Use BottomSheet
+  if (isMobile) {
+    return (
+      <BottomSheet
+        isOpen={isOpen}
+        onClose={onClose}
+        title={item ? 'Edit Watch Item' : 'Add Watch Item'}
+        maxHeight="90vh"
+      >
+        {formContent}
+      </BottomSheet>
+    );
+  }
+
+  // Desktop/Tablet: Use Modal
+  const modalContent = (
+    <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <div className="bg-[#0F131F] rounded-2xl border border-white/10 w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl">
+        {/* Header */}
+        <div className="sticky top-0 bg-[#0F131F] border-b border-white/10 p-6 flex items-center justify-between z-10">
+          <h2 className="text-xl font-bold text-white">
+            {item ? 'Edit Watch Item' : 'Add Watch Item'}
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            disabled={isLoading}
+          >
+            <X className="w-5 h-5 text-gray-400" />
+          </button>
+        </div>
+        {formContent}
       </div>
     </div>
   );

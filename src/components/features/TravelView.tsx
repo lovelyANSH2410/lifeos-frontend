@@ -3,6 +3,7 @@ import { Plane, MapPin, Calendar, Trash2, Edit2, Loader2, AlertCircle, Plus, Boo
 import { createTrip, getTrips, getTripSummary, updateTrip, deleteTrip } from '@/services/trip.service';
 import { createDiaryEntry } from '@/services/diary.service';
 import { useAuth } from '@/contexts/AuthContext';
+import { useScreenSize } from '@/hooks/useScreenSize';
 import type { Trip, CreateTripData, TripSummary, CreateDiaryEntryData } from '@/types';
 import TripForm from './TripForm';
 
@@ -34,6 +35,7 @@ const TravelView: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const screenSize = useScreenSize();
 
   // Fetch trips
   const fetchTrips = async (pageNum: number = 1, status?: string) => {
@@ -264,9 +266,10 @@ const TravelView: React.FC = () => {
             </div>
           )}
         </div>
+        {/* Desktop/Tablet: Show button in header */}
         <button
           onClick={openCreateForm}
-          className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-5 py-2 rounded-xl text-sm font-bold transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-2"
+          className="hidden sm:flex bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-5 py-2 rounded-xl text-sm font-bold transition-all shadow-lg shadow-indigo-500/20 items-center gap-2"
         >
           <Plus className="w-4 h-4" />
           Plan Trip
@@ -339,7 +342,13 @@ const TravelView: React.FC = () => {
       ) : (
         <>
           {/* Trips Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className={`grid gap-4 sm:gap-6 ${
+            screenSize === 'mobile' 
+              ? 'grid-cols-1' 
+              : screenSize === 'tablet' 
+              ? 'grid-cols-2' 
+              : 'grid-cols-1 lg:grid-cols-2'
+          }`}>
             {trips.map(trip => (
               <div key={trip._id} className="modern-card overflow-hidden group">
                 {/* Cover Image */}
@@ -489,6 +498,17 @@ const TravelView: React.FC = () => {
         trip={editingTrip}
         isLoading={isSubmitting}
       />
+
+      {/* FAB for Mobile */}
+      {screenSize === 'mobile' && (
+        <button
+          onClick={openCreateForm}
+          className="fixed bottom-24 right-4 w-14 h-14 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/30 flex items-center justify-center transition-all z-40"
+          style={{ marginBottom: 'env(safe-area-inset-bottom, 0)' }}
+        >
+          <Plus className="w-6 h-6" />
+        </button>
+      )}
     </div>
   );
 };

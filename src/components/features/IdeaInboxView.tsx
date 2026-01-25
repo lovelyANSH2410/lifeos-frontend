@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Lightbulb, Plus, Loader2, AlertCircle, Sparkles } from 'lucide-react';
+import { Lightbulb, Plus, Loader2, AlertCircle, Sparkles, Filter } from 'lucide-react';
 import { createIdea, getIdeas, updateIdea, deleteIdea } from '@/services/idea.service';
+import { useScreenSize } from '@/hooks/useScreenSize';
+import BottomSheet from '@/components/common/BottomSheet';
 import type { Idea, CreateIdeaData } from '@/types';
 import IdeaCard from './IdeaCard';
 import IdeaForm from './IdeaForm';
@@ -18,6 +20,8 @@ const IdeaInboxView: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('inbox');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const screenSize = useScreenSize();
 
   // Fetch ideas
   const fetchIdeas = async (pageNum: number = 1, status?: string) => {
@@ -147,8 +151,8 @@ const IdeaInboxView: React.FC = () => {
         </button>
       </div>
 
-      {/* Filter Pills - Matching Travel Plans */}
-      <div className="flex gap-2 flex-wrap">
+      {/* Filter Pills - Desktop/Tablet */}
+      <div className="hidden sm:flex gap-2 flex-wrap">
         <button
           onClick={() => setStatusFilter('')}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -223,7 +227,14 @@ const IdeaInboxView: React.FC = () => {
       ) : (
         <>
           {/* Ideas List - Vertical flow matching Diary */}
-          <div className="grid grid-cols-1 gap-4">
+          {/* Mobile: Timeline feed, Tablet: 2-column grid */}
+          <div className={`grid gap-4 ${
+            screenSize === 'mobile' 
+              ? 'grid-cols-1' 
+              : screenSize === 'tablet' 
+              ? 'grid-cols-2' 
+              : 'grid-cols-1'
+          }`}>
             {ideas.map(idea => (
               <IdeaCard
                 key={idea._id}
@@ -258,6 +269,45 @@ const IdeaInboxView: React.FC = () => {
         </>
       )}
 
+      {/* Mobile: Filter Button */}
+      {screenSize === 'mobile' && (
+        <button
+          onClick={() => setIsFilterOpen(true)}
+          className="fixed bottom-32 right-4 w-12 h-12 rounded-full bg-[#151B28] border border-white/10 text-white shadow-lg flex items-center justify-center transition-all z-40"
+          style={{ marginBottom: 'env(safe-area-inset-bottom, 0)' }}
+        >
+          <Filter className="w-5 h-5" />
+        </button>
+      )}
+
+      {/* Mobile: Filter Bottom Sheet */}
+      {screenSize === 'mobile' && (
+        <BottomSheet
+          isOpen={isFilterOpen}
+          onClose={() => setIsFilterOpen(false)}
+          title="Filter Ideas"
+        >
+          <div className="p-6 space-y-2">
+            {['', 'inbox', 'saved', 'explored', 'archived'].map((status) => (
+              <button
+                key={status}
+                onClick={() => {
+                  setStatusFilter(status);
+                  setIsFilterOpen(false);
+                }}
+                className={`w-full px-4 py-3 rounded-xl text-sm font-medium transition-colors text-left ${
+                  statusFilter === status
+                    ? 'bg-indigo-500 text-white'
+                    : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                }`}
+              >
+                {status === '' ? 'All' : status.charAt(0).toUpperCase() + status.slice(1)}
+              </button>
+            ))}
+          </div>
+        </BottomSheet>
+      )}
+
       {/* Idea Form Modal */}
       <IdeaForm
         isOpen={isFormOpen}
@@ -281,6 +331,17 @@ const IdeaInboxView: React.FC = () => {
         onEdit={openEditForm}
         onDelete={handleDelete}
       />
+
+      {/* FAB for Mobile */}
+      {screenSize === 'mobile' && (
+        <button
+          onClick={openCreateForm}
+          className="fixed bottom-24 right-4 w-14 h-14 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/30 flex items-center justify-center transition-all z-40"
+          style={{ marginBottom: 'env(safe-area-inset-bottom, 0)' }}
+        >
+          <Plus className="w-6 h-6" />
+        </button>
+      )}
     </div>
   );
 };

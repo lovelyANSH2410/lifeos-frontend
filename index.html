@@ -70,12 +70,32 @@
     .custom-scrollbar::-webkit-scrollbar-thumb:hover {
       background: rgba(255, 255, 255, 0.2);
     }
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
     .animate-enter {
       animation: enter 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
     }
     @keyframes enter {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slide-up {
+      from { 
+        opacity: 0;
+        transform: translateY(100%);
+      }
+      to { 
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .animate-slide-up {
+      animation: slide-up 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
     }
   </style>
 <script type="importmap">

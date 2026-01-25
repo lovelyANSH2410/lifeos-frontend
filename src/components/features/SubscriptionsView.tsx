@@ -7,6 +7,7 @@ import {
   updateSubscription,
   deleteSubscription
 } from '@/services/subscription.service';
+import { useScreenSize } from '@/hooks/useScreenSize';
 import type { Subscription, CreateSubscriptionData, SubscriptionSummary } from '@/types';
 import SubscriptionForm from './SubscriptionForm';
 import { useAuth } from '@/contexts/AuthContext';
@@ -39,6 +40,7 @@ const SubscriptionsView: React.FC = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingSubscription, setEditingSubscription] = useState<Subscription | null>(null);
   const [filter, setFilter] = useState<'all' | 'active' | 'paused' | 'cancelled'>('all');
+  const screenSize = useScreenSize();
 
   // Get user's default currency
   const defaultCurrency = user?.currency || 'INR';
@@ -162,12 +164,13 @@ const SubscriptionsView: React.FC = () => {
               </p>
             )}
           </div>
+          {/* Desktop/Tablet: Show button in header */}
           <button
             onClick={() => {
               setEditingSubscription(null);
               setIsFormOpen(true);
             }}
-            className="bg-white text-black px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-gray-200 transition-colors flex items-center gap-2"
+            className="hidden sm:flex bg-white text-black px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-gray-200 transition-colors items-center gap-2"
           >
             <Plus className="w-4 h-4" /> New
           </button>
@@ -213,7 +216,13 @@ const SubscriptionsView: React.FC = () => {
       ) : (
         <>
           {/* Subscriptions Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className={`grid gap-4 ${
+            screenSize === 'mobile' 
+              ? 'grid-cols-1' 
+              : screenSize === 'tablet' 
+              ? 'grid-cols-2' 
+              : 'grid-cols-1 md:grid-cols-2'
+          }`}>
             {subscriptions.map(sub => (
               <div key={sub._id} className="modern-card p-5 flex items-center justify-between group">
                 <div className="flex items-center gap-4 flex-1">
@@ -344,6 +353,20 @@ const SubscriptionsView: React.FC = () => {
         subscription={editingSubscription}
         isLoading={isSubmitting}
       />
+
+      {/* FAB for Mobile */}
+      {screenSize === 'mobile' && (
+        <button
+          onClick={() => {
+            setEditingSubscription(null);
+            setIsFormOpen(true);
+          }}
+          className="fixed bottom-24 right-4 w-14 h-14 rounded-full bg-white hover:bg-gray-200 text-black shadow-lg flex items-center justify-center transition-all z-40"
+          style={{ marginBottom: 'env(safe-area-inset-bottom, 0)' }}
+        >
+          <Plus className="w-6 h-6" />
+        </button>
+      )}
     </div>
   );
 };
