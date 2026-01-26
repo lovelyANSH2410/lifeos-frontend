@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Sparkles } from 'lucide-react';
 
 const Navbar = () => {
@@ -26,8 +27,8 @@ const Navbar = () => {
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div
           className={`flex items-center justify-between px-6 py-3 rounded-full transition-all duration-300 ${isScrolled
-              ? 'bg-slate-950/80 backdrop-blur-md border border-white/10 shadow-lg'
-              : 'bg-transparent border border-transparent'
+            ? 'bg-slate-950/80 backdrop-blur-md border border-white/10 shadow-lg'
+            : 'bg-transparent border border-transparent'
             }`}
         >
           {/* Logo */}
@@ -53,15 +54,15 @@ const Navbar = () => {
 
           {/* CTA */}
           <div className="flex items-center gap-4">
-            <a href="/dashboard" className="hidden sm:block text-sm font-medium text-slate-300 hover:text-white transition-colors">
+            <Link to="/dashboard" className="hidden sm:block text-sm font-medium text-slate-300 hover:text-white transition-colors">
               Log in
-            </a>
-            <a
-              href="/dashboard"
+            </Link>
+            <Link
+              to="/dashboard"
               className="bg-white text-slate-950 hover:bg-slate-200 px-5 py-2 rounded-full text-sm font-semibold transition-colors shadow-[0_0_20px_rgba(255,255,255,0.1)]"
             >
               Get Early Access
-            </a>
+            </Link>
           </div>
         </div>
       </div>
