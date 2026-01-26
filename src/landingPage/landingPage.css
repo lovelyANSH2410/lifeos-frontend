@@ -1,0 +1,134 @@
+/* Landing Page Scoped Styles */
+
+/* Base styles for landing page */
+.landing-page {
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+}
+
+/* Custom Scrollbar for landing page */
+.landing-page::-webkit-scrollbar {
+    width: 8px;
+}
+
+.landing-page::-webkit-scrollbar-track {
+    background: #020617;
+}
+
+.landing-page::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 4px;
+}
+
+.landing-page::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+/* Glass effects */
+.landing-page .glass-panel {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.landing-page .glass-card {
+    background: rgba(30, 41, 59, 0.4);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Animations */
+@keyframes bounce-slow {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.landing-page .animate-bounce-slow {
+    animation: bounce-slow 3s ease-in-out infinite;
+}
+
+.landing-page .delay-700 {
+    animation-delay: 700ms;
+}
+
+/* Perspective utilities */
+.landing-page .perspective-1000 {
+    perspective: 1000px;
+}
+
+.landing-page .rotate-x-6 {
+    transform: rotateX(6deg);
+}
+
+.landing-page .rotate-y-3 {
+    transform: rotateY(3deg);
+}
+
+.landing-page .-rotate-y-3 {
+    transform: rotateY(-3deg);
+}
+
+/* Animation utilities */
+.landing-page .animate-in {
+    animation-name: animate-in;
+    animation-duration: 300ms;
+    animation-timing-function: ease-out;
+    animation-fill-mode: forwards;
+}
+
+.landing-page .fade-in {
+    animation-name: fade-in;
+}
+
+.landing-page .zoom-in {
+    animation-name: zoom-in;
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes zoom-in {
+    from {
+        transform: scale(0.95);
+    }
+
+    to {
+        transform: scale(1);
+    }
+}
+
+@keyframes animate-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Line clamp utility */
+.landing-page .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}

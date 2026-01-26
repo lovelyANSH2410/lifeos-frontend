@@ -1,8 +1,10 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import App from './App';
+import LandingPage from './landingPage/LandingPage';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -12,8 +14,15 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   // <React.StrictMode>
-    <AuthProvider>
-      <App />
-    </AuthProvider>
+  <BrowserRouter>
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/dashboard/*" element={
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      } />
+    </Routes>
+  </BrowserRouter>
   // </React.StrictMode>
 );
