@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Sparkles, Mail, Lock, User, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Sparkles, Mail, Lock, User, AlertCircle, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import type { LoginCredentials, RegisterCredentials } from '@/types';
 
@@ -49,16 +50,66 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0B0F17] relative overflow-hidden">
-      {/* Background Ambient Glow */}
-      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-purple-900/20 rounded-full blur-[120px] pointer-events-none"></div>
-      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-teal-900/10 rounded-full blur-[120px] pointer-events-none"></div>
+    <div className="min-h-screen flex items-center justify-center bg-[#020617] relative overflow-hidden">
+      {/* Animated Grid Background */}
+      <div className="absolute inset-0 opacity-20">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `
+              linear-gradient(rgba(139, 92, 246, 0.1) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(139, 92, 246, 0.1) 1px, transparent 1px)
+            `,
+            backgroundSize: '60px 60px',
+          }}
+        />
+      </div>
+
+      {/* Neon Purple Orb - Top Right */}
+      <div className="absolute top-[-15%] right-[-10%] w-[500px] h-[500px] rounded-full bg-purple-500/30 blur-[120px] animate-pulse pointer-events-none" />
+
+      {/* Neon Indigo Orb - Bottom Left */}
+      <div className="absolute bottom-[-20%] left-[-15%] w-[600px] h-[600px] rounded-full bg-indigo-500/20 blur-[150px] pointer-events-none" style={{ animation: 'pulse 4s ease-in-out infinite alternate' }} />
+
+      {/* Neon Purple Orb - Center */}
+      <div className="absolute top-[40%] left-[50%] transform -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full bg-purple-600/15 blur-[100px] pointer-events-none" />
+
+      {/* Floating Geometric Shapes */}
+      <div className="absolute top-20 left-20 w-20 h-20 border border-purple-500/30 rounded-lg rotate-45 animate-spin" style={{ animationDuration: '20s' }} />
+      <div className="absolute bottom-32 right-32 w-16 h-16 border border-indigo-400/40 rounded-full" style={{ animation: 'bounce 3s ease-in-out infinite' }} />
+      <div className="absolute top-1/3 right-20 w-3 h-3 bg-purple-400 rounded-full shadow-[0_0_20px_rgba(168,85,247,0.8)]" style={{ animation: 'ping 2s ease-in-out infinite' }} />
+      <div className="absolute bottom-1/4 left-32 w-2 h-2 bg-indigo-400 rounded-full shadow-[0_0_15px_rgba(129,140,248,0.8)]" style={{ animation: 'ping 2.5s ease-in-out infinite' }} />
+
+      {/* Neon Lines */}
+      <div className="absolute top-0 left-1/4 w-px h-40 bg-gradient-to-b from-transparent via-purple-500/50 to-transparent" />
+      <div className="absolute bottom-0 right-1/3 w-px h-32 bg-gradient-to-t from-transparent via-indigo-500/50 to-transparent" />
+
+      {/* Horizontal Neon Accent Lines */}
+      <div className="absolute top-1/4 left-0 w-32 h-px bg-gradient-to-r from-transparent via-purple-400/60 to-transparent" />
+      <div className="absolute bottom-1/3 right-0 w-40 h-px bg-gradient-to-l from-transparent via-indigo-400/60 to-transparent" />
+
+      {/* Ring Elements */}
+      <div className="absolute top-1/2 left-10 w-40 h-40 border border-purple-500/20 rounded-full" style={{ animation: 'pulse 5s ease-in-out infinite' }} />
+      <div className="absolute top-1/2 left-10 w-32 h-32 border border-purple-400/10 rounded-full translate-x-4 translate-y-4" />
+
+      {/* Back to Home Link */}
+      <Link
+        to="/"
+        className="absolute top-6 left-6 flex items-center gap-2 text-gray-400 hover:text-purple-400 transition-all duration-300 group z-20"
+      >
+        <div className="p-2 rounded-lg bg-white/5 border border-white/10 group-hover:border-purple-500/50 group-hover:bg-purple-500/10 transition-all duration-300">
+          <ArrowLeft className="w-4 h-4" />
+        </div>
+        <span className="text-sm font-medium hidden sm:block">Back to Home</span>
+      </Link>
 
       <div className="w-full max-w-md px-6 z-10">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-purple-500/20 mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-purple-500/30 mb-4 relative">
             <Sparkles className="w-8 h-8 text-white" />
+            {/* Glow ring around logo */}
+            <div className="absolute inset-0 rounded-2xl bg-purple-500/20 blur-xl -z-10" />
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">LifeOS</h1>
           <p className="text-gray-400">
@@ -67,7 +118,9 @@ const Login: React.FC = () => {
         </div>
 
         {/* Form Card */}
-        <div className="bg-[#0F131F] border border-white/10 rounded-2xl p-8 shadow-2xl">
+        <div className="bg-[#0a0f1a]/80 backdrop-blur-xl border border-purple-500/20 rounded-2xl p-8 shadow-2xl shadow-purple-500/5 relative">
+          {/* Card glow effect */}
+          <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-purple-500/5 to-transparent pointer-events-none" />
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Name field (only for registration) */}
             {!isLoginMode && (
@@ -154,13 +207,13 @@ const Login: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold py-3 rounded-xl hover:shadow-lg hover:shadow-purple-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold py-3 rounded-xl hover:shadow-lg hover:shadow-purple-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden group"
             >
               {isLoading
                 ? 'Please wait...'
                 : isLoginMode
-                ? 'Sign In'
-                : 'Create Account'}
+                  ? 'Sign In'
+                  : 'Create Account'}
             </button>
           </form>
 
