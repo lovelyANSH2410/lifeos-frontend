@@ -5,32 +5,32 @@ import { MockMoney, MockMovies, MockIdeas, MockTravel } from './ui/MockScreens';
 const features = [
     {
         id: 'money',
-        title: "Financial clarity, finally.",
-        description: "Track income, expenses, subscriptions, and savings in one place. No complex spreadsheets, just a clear snapshot of your financial health.",
+        title: "Money, without anxiety.",
+        description: "See your income, expenses, subscriptions, and savings in one calm snapshot. No spreadsheets. No finance jargon. Just clarity.",
         icon: Wallet,
         color: "text-emerald-400",
         component: <MockMoney />
     },
     {
         id: 'movies',
-        title: "Your entertainment library.",
-        description: "Track what you're watching across Netflix, HBO, and more. Rate favorites, manage your watchlist, and never ask 'what should we watch?' again.",
+        title: "Your taste, remembered.",
+        description: "Track what you watched, loved, dropped, or want to watch — and never ask “what should I watch?” again.",
         icon: Film,
         color: "text-rose-400",
         component: <MockMovies />
     },
     {
         id: 'travel',
-        title: "Plan trips, keep memories.",
-        description: "Organize flights, stays, and budgets for your adventures. Attach photos and journal entries to keep the memories alive forever.",
+        title: "Trips don’t end when you come home.",
+        description: "Plan trips, store details, and attach photos and diary entries — so your memories don’t disappear into your camera roll.",
         icon: Plane,
         color: "text-sky-400",
         component: <MockTravel />
     },
     {
         id: 'ideas',
-        title: "Never lose a thought.",
-        description: "Capture ideas instantly. Whether it's a gift idea, a business concept, or a book recommendation, throw it in the Inbox and sort it later.",
+        title: "Your thoughts, saved.",
+        description: "Capture ideas before they disappear. Messy, half-formed, random — all welcome.",
         icon: Lightbulb,
         color: "text-yellow-400",
         component: <MockIdeas />
@@ -42,9 +42,10 @@ const Features = () => {
         <section id="features" className="py-24 md:py-32 relative">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
                 <div className="mb-20">
-                    <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">An operating system <br />for your daily life.</h2>
+                    <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Your life is spread everywhere.</h2>
                     <p className="text-slate-400 text-lg max-w-2xl">
-                        Most apps do one thing. LifeOS connects everything, creating a context-aware dashboard that helps you live better.
+                        Notes, apps, screenshots, spreadsheets, reminders —
+                        pieces of your life live everywhere, and eventually you forget where you saved what.
                     </p>
                 </div>
 

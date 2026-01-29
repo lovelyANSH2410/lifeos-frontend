@@ -4,18 +4,18 @@ import { PenLine, Layers, Sparkles } from 'lucide-react';
 const steps = [
     {
         icon: PenLine,
-        title: "1. Capture Everything",
-        desc: "Expenses, random thoughts, trip ideas, or dates. Just type it in. Quick capture is designed to be faster than opening Notes."
+        title: "1. Drop anything here.",
+        desc: "A thought, expense, idea, or date. Type it once. Don’t think about where it belongs."
     },
     {
         icon: Layers,
-        title: "2. Auto-Organize",
-        desc: "LifeOS intelligently sorts your input. It detects dates, categories, and contexts, filing everything into the right module automatically."
+        title: "2. LifeOS puts it in the right place.",
+        desc: "Dates, categories, and context are handled automatically — so you don’t have to organize your life manually."
     },
     {
         icon: Sparkles,
-        title: "3. Act with Clarity",
-        desc: "Wake up to a dashboard that shows exactly what matters today. No noise. No forgotten bills. Just a clear path forward."
+        title: "3. Come back when it matters.",
+        desc: "Your dashboard shows what’s important today. No noise. No forgotten things. Just clarity."
     }
 ];
 
@@ -24,9 +24,10 @@ const HowItWorks = () => {
         <section id="how-it-works" className="py-24 bg-slate-950/50 border-y border-white/5">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
                 <div className="text-center mb-16">
-                    <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Complexity, simplified.</h2>
+                    <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">You don’t need another system.</h2>
                     <p className="text-slate-400 max-w-xl mx-auto">
-                        We built LifeOS because we were tired of managing 10 different apps just to get through the week.
+                        You just need one place to come back to —
+                        where everything you care about already lives.
                     </p>
                 </div>
 
