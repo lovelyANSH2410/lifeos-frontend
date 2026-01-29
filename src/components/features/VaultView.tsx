@@ -3,12 +3,22 @@ import { Shield, FileText, Key, Eye, EyeOff, Copy, Image as IconImage, Plus, Loa
 import { createVaultItem, getVaultItems, revealPassword, updateVaultItem, deleteVaultItem } from '@/services/vault.service';
 import { createVaultDocument, getVaultDocuments, getDocumentSignedUrl, deleteVaultDocument } from '@/services/document.service';
 import { useScreenSize } from '@/hooks/useScreenSize';
-import type { VaultItem, CreateVaultItemData, VaultDocument, CreateVaultDocumentData } from '@/types';
+import { getUserSubscription } from '@/services/userSubscription.service';
+import { canAccessFeature } from '@/services/subscriptionLimit.service';
+import UpgradePrompt from '@/components/common/UpgradePrompt';
+import type { VaultItem, CreateVaultItemData, VaultDocument, CreateVaultDocumentData, Tab } from '@/types';
 import CredentialForm from './CredentialForm';
 import DocumentForm from './DocumentForm';
 
-const VaultView: React.FC = () => {
+interface VaultViewProps {
+  setActiveTab?: (tab: Tab) => void;
+}
+
+const VaultView: React.FC<VaultViewProps> = ({ setActiveTab: setAppTab }) => {
   const [activeTab, setActiveTab] = useState<'creds' | 'docs'>('creds');
+  const [userSubscription, setUserSubscription] = useState<any>(null);
+  const [showVaultUpgradePrompt, setShowVaultUpgradePrompt] = useState(false);
+  const [showDocsUpgradePrompt, setShowDocsUpgradePrompt] = useState(false);
   
   // Credentials state
   const [credentials, setCredentials] = useState<VaultItem[]>([]);
@@ -28,6 +38,19 @@ const VaultView: React.FC = () => {
   const [editingDocument, setEditingDocument] = useState<VaultDocument | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<string>('');
   const screenSize = useScreenSize();
+
+  // Fetch subscription
+  useEffect(() => {
+    const fetchSubscription = async () => {
+      try {
+        const response = await getUserSubscription();
+        setUserSubscription(response.data);
+      } catch (err) {
+        console.error('Error fetching subscription:', err);
+      }
+    };
+    fetchSubscription();
+  }, []);
 
   // Fetch credentials only when credentials tab is active
   const fetchCredentials = async () => {
@@ -256,6 +279,10 @@ const VaultView: React.FC = () => {
   };
 
   const openCreateCredForm = () => {
+    if (!canAccessFeature(userSubscription, 'vault')) {
+      setShowVaultUpgradePrompt(true);
+      return;
+    }
     setEditingCredential(null);
     setIsCredFormOpen(true);
   };
@@ -266,6 +293,10 @@ const VaultView: React.FC = () => {
   };
 
   const openCreateDocForm = () => {
+    if (!canAccessFeature(userSubscription, 'documents')) {
+      setShowDocsUpgradePrompt(true);
+      return;
+    }
     setEditingDocument(null);
     setIsDocFormOpen(true);
   };
@@ -593,6 +624,25 @@ const VaultView: React.FC = () => {
         isLoading={isSubmittingDocs}
       />
 
+      {/* Upgrade Prompts */}
+      <UpgradePrompt
+        isOpen={showVaultUpgradePrompt}
+        onClose={() => setShowVaultUpgradePrompt(false)}
+        featureName="Vault Credentials"
+        currentCount={0}
+        limit={0}
+        isFeatureBlocked={true}
+        onUpgrade={setAppTab ? () => setAppTab(Tab.SubscriptionPlans) : undefined}
+      />
+      <UpgradePrompt
+        isOpen={showDocsUpgradePrompt}
+        onClose={() => setShowDocsUpgradePrompt(false)}
+        featureName="Vault Documents"
+        currentCount={0}
+        limit={0}
+        isFeatureBlocked={true}
+        onUpgrade={setAppTab ? () => setAppTab(Tab.SubscriptionPlans) : undefined}
+      />
     </div>
   );
 };

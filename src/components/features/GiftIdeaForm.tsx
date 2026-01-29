@@ -168,7 +168,15 @@ const GiftIdeaForm: React.FC<GiftIdeaFormProps> = ({
       images: selectedImages.length > 0 ? selectedImages : undefined,
     };
 
-    await onSubmit(submitData);
+    try {
+      await onSubmit(submitData);
+      onClose();
+    } catch (error: any) {
+      // Error handling (including toast) is done in the parent component (DateNightView)
+      // Just log the error here to avoid duplicate toasts
+      console.error('Error submitting gift idea:', error);
+      // Don't show toast here - parent component already handles it
+    }
   };
 
   const modalContent = (

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Crown, Check, Sparkles, Users, Infinity, Loader2, AlertCircle, Zap, X } from 'lucide-react';
-import { getUserSubscription } from '@/services/userSubscription.service';
+import { getUserSubscription, createPaymentOrder, verifyPayment, openRazorpayCheckout } from '@/services/userSubscription.service';
 import { useAuth } from '@/contexts/AuthContext';
 import type { UserSubscription, SubscriptionPlan, BillingCycle } from '@/types';
 import { useScreenSize } from '@/hooks/useScreenSize';
@@ -117,6 +117,8 @@ const SubscriptionPlansView: React.FC = () => {
   const [selectedBillingCycle, setSelectedBillingCycle] = useState<'MONTHLY' | 'YEARLY' | 'LIFETIME'>('MONTHLY');
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
   const [isPaymentBannerOpen, setIsPaymentBannerOpen] = useState(false);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchSubscription();
@@ -136,14 +138,74 @@ const SubscriptionPlansView: React.FC = () => {
     }
   };
 
-  const handlePlanSelect = (plan: SubscriptionPlan) => {
-    if (plan === 'LIFETIME') {
-      setSelectedBillingCycle('LIFETIME');
-    } else if (plan === 'FREE') {
+  const handlePlanSelect = async (plan: SubscriptionPlan) => {
+    if (plan === 'FREE') {
       return; // Can't select FREE
     }
+
+    if (plan === 'LIFETIME') {
+      setSelectedBillingCycle('LIFETIME');
+    }
+
     setSelectedPlan(plan);
-    setIsPaymentBannerOpen(true);
+    setPaymentError(null);
+    setIsProcessingPayment(true);
+
+    try {
+      // Determine billing cycle
+      const billingCycle = plan === 'LIFETIME' ? 'NONE' : selectedBillingCycle;
+
+      // Create payment order
+      const orderResponse = await createPaymentOrder(plan, billingCycle as 'MONTHLY' | 'YEARLY' | 'NONE');
+      const orderData = orderResponse.data;
+
+      // Open Razorpay checkout
+      openRazorpayCheckout(
+        orderData,
+        {
+          name: 'LifeOS',
+          description: `Upgrade to ${plan} plan${billingCycle !== 'NONE' ? ` (${billingCycle})` : ''}`,
+          prefill: {
+            email: user?.email || undefined,
+            name: user?.name || undefined,
+          },
+          onSuccess: async (paymentId: string, signature: string) => {
+            try {
+              setIsProcessingPayment(true);
+              // Verify payment
+              const verifyResponse = await verifyPayment(
+                orderData.orderId,
+                paymentId,
+                signature,
+                plan,
+                billingCycle as 'MONTHLY' | 'YEARLY' | 'NONE'
+              );
+
+              // Update subscription state
+              setUserSubscription(verifyResponse.data.subscription);
+              setIsPaymentBannerOpen(false);
+              setSelectedPlan(null);
+              setIsProcessingPayment(false);
+              
+              // Show success message (you can add a toast notification here)
+              alert('Payment successful! Your subscription has been upgraded.');
+            } catch (error: any) {
+              console.error('Payment verification error:', error);
+              setPaymentError(error.message || 'Payment verification failed');
+              setIsProcessingPayment(false);
+            }
+          },
+          onError: (error: string) => {
+            setPaymentError(error);
+            setIsProcessingPayment(false);
+          },
+        }
+      );
+    } catch (error: any) {
+      console.error('Payment order creation error:', error);
+      setPaymentError(error.message || 'Failed to create payment order');
+      setIsProcessingPayment(false);
+    }
   };
 
   const formatPrice = (price: number) => {
@@ -338,32 +400,57 @@ const SubscriptionPlansView: React.FC = () => {
         })}
       </div>
 
-      {/* Payment Banner Modal/BottomSheet */}
-      {isPaymentBannerOpen && selectedPlan && (
+      {/* Payment Processing Modal/BottomSheet */}
+      {(isProcessingPayment || paymentError) && selectedPlan && (
         screenSize === 'mobile' ? (
           <BottomSheet
-            isOpen={isPaymentBannerOpen}
-            onClose={() => setIsPaymentBannerOpen(false)}
-            title="Payment Coming Soon"
+            isOpen={isProcessingPayment || !!paymentError}
+            onClose={() => {
+              if (!isProcessingPayment) {
+                setIsPaymentBannerOpen(false);
+                setPaymentError(null);
+                setSelectedPlan(null);
+              }
+            }}
+            title={paymentError ? "Payment Error" : "Processing Payment"}
             maxHeight="50vh"
           >
             <div className={`${screenSize === 'mobile' ? 'p-4' : 'p-6'} space-y-4`}>
-              <div className={`flex items-center justify-center ${screenSize === 'mobile' ? 'w-12 h-12' : 'w-16 h-16'} rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 mx-auto mb-4`}>
-                <Crown className={`${screenSize === 'mobile' ? 'w-6 h-6' : 'w-8 h-8'} text-white`} />
-              </div>
-              <h3 className={`${screenSize === 'mobile' ? 'text-lg' : 'text-xl'} font-bold text-white text-center`}>
-                Payment Integration Coming Soon
-              </h3>
-              <p className={`text-gray-400 text-center ${screenSize === 'mobile' ? 'text-xs' : 'text-sm'}`}>
-                We're working on integrating Razorpay for seamless payments. 
-                You'll be able to upgrade to <span className="font-bold text-white">{selectedPlan}</span> plan soon!
-              </p>
-              <button
-                onClick={() => setIsPaymentBannerOpen(false)}
-                className={`w-full ${screenSize === 'mobile' ? 'py-2.5 text-sm' : 'py-3'} bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg transition-all`}
-              >
-                Got it
-              </button>
+              {isProcessingPayment ? (
+                <>
+                  <div className={`flex items-center justify-center ${screenSize === 'mobile' ? 'w-12 h-12' : 'w-16 h-16'} rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 mx-auto mb-4`}>
+                    <Loader2 className={`${screenSize === 'mobile' ? 'w-6 h-6' : 'w-8 h-8'} text-white animate-spin`} />
+                  </div>
+                  <h3 className={`${screenSize === 'mobile' ? 'text-lg' : 'text-xl'} font-bold text-white text-center`}>
+                    Opening Payment Gateway
+                  </h3>
+                  <p className={`text-gray-400 text-center ${screenSize === 'mobile' ? 'text-xs' : 'text-sm'}`}>
+                    Please complete the payment in the Razorpay checkout window.
+                  </p>
+                </>
+              ) : paymentError ? (
+                <>
+                  <div className={`flex items-center justify-center ${screenSize === 'mobile' ? 'w-12 h-12' : 'w-16 h-16'} rounded-full bg-gradient-to-r from-rose-500 to-pink-600 mx-auto mb-4`}>
+                    <AlertCircle className={`${screenSize === 'mobile' ? 'w-6 h-6' : 'w-8 h-8'} text-white`} />
+                  </div>
+                  <h3 className={`${screenSize === 'mobile' ? 'text-lg' : 'text-xl'} font-bold text-white text-center`}>
+                    Payment Failed
+                  </h3>
+                  <p className={`text-gray-400 text-center ${screenSize === 'mobile' ? 'text-xs' : 'text-sm'}`}>
+                    {paymentError}
+                  </p>
+                  <button
+                    onClick={() => {
+                      setIsPaymentBannerOpen(false);
+                      setPaymentError(null);
+                      setSelectedPlan(null);
+                    }}
+                    className={`w-full ${screenSize === 'mobile' ? 'py-2.5 text-sm' : 'py-3'} bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg transition-all`}
+                  >
+                    Close
+                  </button>
+                </>
+              ) : null}
             </div>
           </BottomSheet>
         ) : createPortal(
@@ -371,27 +458,51 @@ const SubscriptionPlansView: React.FC = () => {
             <div className="bg-[#0F131F] border border-white/10 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
               <div className={`${screenSize === 'mobile' ? 'p-4' : 'p-6'} space-y-4`}>
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className={`${screenSize === 'mobile' ? 'text-lg' : 'text-xl'} font-bold text-white`}>Payment Coming Soon</h3>
-                  <button
-                    onClick={() => setIsPaymentBannerOpen(false)}
-                    className="p-2 hover:bg-white/5 rounded-lg transition-colors"
-                  >
-                    <X className={`${screenSize === 'mobile' ? 'w-4 h-4' : 'w-5 h-5'} text-gray-400`} />
-                  </button>
+                  <h3 className={`${screenSize === 'mobile' ? 'text-lg' : 'text-xl'} font-bold text-white`}>
+                    {paymentError ? "Payment Error" : "Processing Payment"}
+                  </h3>
+                  {!isProcessingPayment && (
+                    <button
+                      onClick={() => {
+                        setIsPaymentBannerOpen(false);
+                        setPaymentError(null);
+                        setSelectedPlan(null);
+                      }}
+                      className="p-2 hover:bg-white/5 rounded-lg transition-colors"
+                    >
+                      <X className={`${screenSize === 'mobile' ? 'w-4 h-4' : 'w-5 h-5'} text-gray-400`} />
+                    </button>
+                  )}
                 </div>
-                <div className={`flex items-center justify-center ${screenSize === 'mobile' ? 'w-12 h-12' : 'w-16 h-16'} rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 mx-auto mb-4`}>
-                  <Crown className={`${screenSize === 'mobile' ? 'w-6 h-6' : 'w-8 h-8'} text-white`} />
-                </div>
-                <p className={`text-gray-400 text-center ${screenSize === 'mobile' ? 'text-xs' : 'text-sm'}`}>
-                  We're working on integrating Razorpay for seamless payments. 
-                  You'll be able to upgrade to <span className="font-bold text-white">{selectedPlan}</span> plan soon!
-                </p>
-                <button
-                  onClick={() => setIsPaymentBannerOpen(false)}
-                  className={`w-full ${screenSize === 'mobile' ? 'py-2.5 text-sm' : 'py-3'} bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg transition-all`}
-                >
-                  Got it
-                </button>
+                {isProcessingPayment ? (
+                  <>
+                    <div className={`flex items-center justify-center ${screenSize === 'mobile' ? 'w-12 h-12' : 'w-16 h-16'} rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 mx-auto mb-4`}>
+                      <Loader2 className={`${screenSize === 'mobile' ? 'w-6 h-6' : 'w-8 h-8'} text-white animate-spin`} />
+                    </div>
+                    <p className={`text-gray-400 text-center ${screenSize === 'mobile' ? 'text-xs' : 'text-sm'}`}>
+                      Please complete the payment in the Razorpay checkout window.
+                    </p>
+                  </>
+                ) : paymentError ? (
+                  <>
+                    <div className={`flex items-center justify-center ${screenSize === 'mobile' ? 'w-12 h-12' : 'w-16 h-16'} rounded-full bg-gradient-to-r from-rose-500 to-pink-600 mx-auto mb-4`}>
+                      <AlertCircle className={`${screenSize === 'mobile' ? 'w-6 h-6' : 'w-8 h-8'} text-white`} />
+                    </div>
+                    <p className={`text-gray-400 text-center ${screenSize === 'mobile' ? 'text-xs' : 'text-sm'}`}>
+                      {paymentError}
+                    </p>
+                    <button
+                      onClick={() => {
+                        setIsPaymentBannerOpen(false);
+                        setPaymentError(null);
+                        setSelectedPlan(null);
+                      }}
+                      className={`w-full ${screenSize === 'mobile' ? 'py-2.5 text-sm' : 'py-3'} bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg transition-all`}
+                    >
+                      Close
+                    </button>
+                  </>
+                ) : null}
               </div>
             </div>
           </div>,

@@ -8,6 +8,8 @@ import {
   deleteSubscription
 } from '@/services/subscription.service';
 import { useScreenSize } from '@/hooks/useScreenSize';
+import { useToast } from '@/contexts/ToastContext';
+import { extractErrorMessage, isSubscriptionLimitError } from '@/utils/error.util';
 import type { Subscription, CreateSubscriptionData, SubscriptionSummary } from '@/types';
 import SubscriptionForm from './SubscriptionForm';
 import { useAuth } from '@/contexts/AuthContext';
@@ -32,6 +34,7 @@ const categoryEmojis: Record<string, string> = {
 
 const SubscriptionsView: React.FC = () => {
   const { user } = useAuth();
+  const { showError, showUpgrade } = useToast();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [summary, setSummary] = useState<SubscriptionSummary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -83,7 +86,16 @@ const SubscriptionsView: React.FC = () => {
       setIsFormOpen(false);
       setEditingSubscription(null);
     } catch (err: any) {
-      throw err; // Let form handle the error
+      const errorMessage = extractErrorMessage(err);
+      
+      // Show toast for subscription limit errors
+      if (isSubscriptionLimitError(err)) {
+        showUpgrade(errorMessage);
+      } else {
+        showError(errorMessage);
+      }
+      
+      throw err; // Also throw to let form handle the error
     } finally {
       setIsSubmitting(false);
     }

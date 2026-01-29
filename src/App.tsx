@@ -250,11 +250,11 @@ const App: React.FC = () => {
               {activeTab === Tab.Entertainment && <WatchView />}
               {activeTab === Tab.Dates && <DateNightView />}
               {activeTab === Tab.Money && <MoneyView />}
-              {activeTab === Tab.Vault && <VaultView />}
+              {activeTab === Tab.Vault && <VaultView setActiveTab={setActiveTab} />}
               {activeTab === Tab.Travel && <TravelView />}
               {activeTab === Tab.Subscriptions && <SubscriptionsView />}
               {activeTab === Tab.SubscriptionPlans && <SubscriptionPlansView />}
-              {activeTab === Tab.Journal && <JournalView />}
+              {activeTab === Tab.Journal && <JournalView setActiveTab={setActiveTab} />}
               {activeTab === Tab.Ideas && <IdeaInboxView />}
             </div>
           </div>

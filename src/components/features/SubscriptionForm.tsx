@@ -141,8 +141,11 @@ const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
     try {
       await onSubmit(formData);
       onClose();
-    } catch (error) {
+    } catch (error: any) {
+      // Error handling (including toast) is done in the parent component (SubscriptionsView)
+      // Just log the error here to avoid duplicate toasts
       console.error('Error submitting subscription:', error);
+      // Don't show toast here - parent component already handles it
     }
   };
 
