@@ -6,9 +6,96 @@ export enum Tab {
   Vault = 'Vault',
   Subscriptions = 'Subscriptions',
   Travel = 'Travel',
+  Exams = 'Exams',
   Journal = 'Journal',
   Ideas = 'Ideas',
   SubscriptionPlans = 'SubscriptionPlans'
+}
+
+// Exam / Subject / Topic types (for Exams feature)
+export interface Exam {
+  _id: string;
+  userId: string;
+  name: string;
+  examDate?: string;
+  progress: number;
+  createdAt?: string;
+}
+
+export interface Subject {
+  _id: string;
+  examId: string;
+  name: string;
+  progress: number;
+  createdAt?: string;
+}
+
+export interface Topic {
+  _id: string;
+  subjectId: string;
+  name: string;
+  study: boolean;
+  rev1: boolean;
+  rev2: boolean;
+  rev3: boolean;
+  progress: number;
+  createdAt?: string;
+}
+
+export interface CreateExamData {
+  name: string;
+  examDate?: string;
+}
+
+export interface CreateSubjectData {
+  name: string;
+}
+
+export interface CreateTopicData {
+  name: string;
+}
+
+export interface UpdateTopicProgressData {
+  study?: boolean;
+  rev1?: boolean;
+  rev2?: boolean;
+  rev3?: boolean;
+}
+
+export interface ExamResponse {
+  success: boolean;
+  message: string;
+  data: Exam;
+}
+
+export interface ExamsResponse {
+  success: boolean;
+  message: string;
+  data: Exam[];
+}
+
+export interface SubjectResponse {
+  success: boolean;
+  message: string;
+  data: Subject;
+}
+
+export interface SubjectsResponse {
+  success: boolean;
+  message: string;
+  data: Subject[];
+}
+
+export interface TopicResponse {
+  success: boolean;
+  message: string;
+  data: Topic;
+}
+
+export interface TopicsResponse {
+  success: boolean;
+  message: string;
+  data: Topic[];
 }
 
 export type Plan = 'Free' | 'Couple' | 'Pro';
