@@ -1,6 +1,6 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { X, LayoutDashboard, Film, Heart, Wallet, Shield, Plane, Repeat, Book, Lightbulb, Crown, LogOut, Users, Sparkles } from 'lucide-react';
+import { X, LayoutDashboard, Film, Heart, Wallet, Shield, Plane, Repeat, Book, Lightbulb, Crown, LogOut, Users, Sparkles, GraduationCap } from 'lucide-react';
 import { Tab } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import SidebarItem from '@/components/common/SidebarItem';
@@ -70,6 +70,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
           <SidebarItem icon={Wallet} label="Money Manager" active={activeTab === Tab.Money} onClick={() => handleTabClick(Tab.Money)} collapsed={false} />
           <SidebarItem icon={Shield} label="Vault & Docs" active={activeTab === Tab.Vault} onClick={() => handleTabClick(Tab.Vault)} collapsed={false} />
           <SidebarItem icon={Plane} label="Travel Plans" active={activeTab === Tab.Travel} onClick={() => handleTabClick(Tab.Travel)} collapsed={false} />
+          <SidebarItem icon={GraduationCap} label="Exams & Study" active={activeTab === Tab.Exams} onClick={() => handleTabClick(Tab.Exams)} collapsed={false} />
           <SidebarItem icon={Repeat} label="Subscriptions" active={activeTab === Tab.Subscriptions} onClick={() => handleTabClick(Tab.Subscriptions)} collapsed={false} />
           <SidebarItem icon={Book} label="Personal Diary" active={activeTab === Tab.Journal} onClick={() => handleTabClick(Tab.Journal)} collapsed={false} />
           <SidebarItem icon={Lightbulb} label="Idea Inbox" active={activeTab === Tab.Ideas} onClick={() => handleTabClick(Tab.Ideas)} collapsed={false} />

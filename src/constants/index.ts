@@ -49,6 +49,22 @@ export const TRIP_ENDPOINTS = {
   SUMMARY: '/trips/summary'
 };
 
+// Exam / Subject / Topic endpoints
+export const EXAM_ENDPOINTS = {
+  CREATE: '/exams',
+  GET_ALL: '/exams',
+  GET_BY_ID: (id: string) => `/exams/${id}`,
+  SUBJECTS: (examId: string) => ({
+    CREATE: `/exams/${examId}/subjects`,
+    GET_ALL: `/exams/${examId}/subjects`
+  }),
+  TOPICS: (subjectId: string) => ({
+    CREATE: `/subjects/${subjectId}/topics`,
+    GET_ALL: `/subjects/${subjectId}/topics`
+  }),
+  TOPIC_PROGRESS: (topicId: string) => `/topics/${topicId}/progress`
+};
+
 // Vault endpoints
 export const VAULT_ENDPOINTS = {
   CREATE: '/vault',

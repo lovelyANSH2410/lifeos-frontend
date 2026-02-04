@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LayoutDashboard, Wallet, Plus, Plane, MoreHorizontal, Film, Lightbulb, Book, Shield, Heart, Repeat, Crown } from 'lucide-react';
+import { LayoutDashboard, Wallet, Plus, Plane, MoreHorizontal, Film, Lightbulb, Book, Shield, Heart, Repeat, Crown, GraduationCap } from 'lucide-react';
 import { Tab } from '@/types';
 import BottomSheet from '@/components/common/BottomSheet';
 import { useAuth } from '@/contexts/AuthContext';
@@ -45,6 +45,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, onCapture
     { id: Tab.Journal, icon: Book, label: 'Personal Diary' },
     { id: Tab.Vault, icon: Shield, label: 'Vault & Docs' },
     { id: Tab.Dates, icon: Heart, label: 'Gifting & Dates' },
+    { id: Tab.Exams, icon: GraduationCap, label: 'Exams & Study' },
     { id: Tab.Subscriptions, icon: Repeat, label: 'Subscriptions' },
   ];
 
