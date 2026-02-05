@@ -9,16 +9,23 @@ import {
   BookOpen,
   FileText,
   CheckSquare,
-  Square
+  Square,
+  Edit2,
+  Trash2
 } from 'lucide-react';
 import {
   createExam,
   getExams,
-  getExamById,
+  updateExam,
+  deleteExam,
   createSubject,
   getSubjects,
+  updateSubject,
+  deleteSubject,
   createTopic,
   getTopics,
+  updateTopic,
+  deleteTopic,
   updateTopicProgress
 } from '@/services/exam.service';
 import { useScreenSize } from '@/hooks/useScreenSize';
@@ -45,6 +52,9 @@ const ExamsView: React.FC = () => {
   const [isExamFormOpen, setIsExamFormOpen] = useState(false);
   const [isSubjectFormOpen, setIsSubjectFormOpen] = useState(false);
   const [isTopicFormOpen, setIsTopicFormOpen] = useState(false);
+  const [editingExam, setEditingExam] = useState<Exam | null>(null);
+  const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
+  const [editingTopic, setEditingTopic] = useState<Topic | null>(null);
 
   const fetchExams = useCallback(async () => {
     try {
@@ -109,11 +119,39 @@ const ExamsView: React.FC = () => {
       setError(null);
       await createExam(data);
       setIsExamFormOpen(false);
+      setEditingExam(null);
       fetchExams();
     } catch (err: unknown) {
       throw err;
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleUpdateExam = async (data: CreateExamData) => {
+    if (!editingExam) return;
+    try {
+      setIsSubmitting(true);
+      setError(null);
+      await updateExam(editingExam._id, data);
+      setIsExamFormOpen(false);
+      setEditingExam(null);
+      fetchExams();
+    } catch (err: unknown) {
+      throw err;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteExam = async (examId: string) => {
+    if (!confirm('Delete this exam and all its subjects and topics?')) return;
+    try {
+      setError(null);
+      await deleteExam(examId);
+      fetchExams();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to delete exam');
     }
   };
 
@@ -124,11 +162,39 @@ const ExamsView: React.FC = () => {
       setError(null);
       await createSubject(selectedExamId, data);
       setIsSubjectFormOpen(false);
+      setEditingSubject(null);
       fetchSubjects(selectedExamId);
     } catch (err: unknown) {
       throw err;
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleUpdateSubject = async (data: CreateSubjectData) => {
+    if (!editingSubject) return;
+    try {
+      setIsSubmitting(true);
+      setError(null);
+      await updateSubject(editingSubject._id, data);
+      setIsSubjectFormOpen(false);
+      setEditingSubject(null);
+      if (selectedExamId) fetchSubjects(selectedExamId);
+    } catch (err: unknown) {
+      throw err;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteSubject = async (subjectId: string) => {
+    if (!confirm('Delete this subject and all its topics?')) return;
+    try {
+      setError(null);
+      await deleteSubject(subjectId);
+      if (selectedExamId) fetchSubjects(selectedExamId);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to delete subject');
     }
   };
 
@@ -139,11 +205,39 @@ const ExamsView: React.FC = () => {
       setError(null);
       await createTopic(selectedSubjectId, data);
       setIsTopicFormOpen(false);
+      setEditingTopic(null);
       fetchTopics(selectedSubjectId);
     } catch (err: unknown) {
       throw err;
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleUpdateTopic = async (data: CreateTopicData) => {
+    if (!editingTopic) return;
+    try {
+      setIsSubmitting(true);
+      setError(null);
+      await updateTopic(editingTopic._id, data);
+      setIsTopicFormOpen(false);
+      setEditingTopic(null);
+      if (selectedSubjectId) fetchTopics(selectedSubjectId);
+    } catch (err: unknown) {
+      throw err;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteTopic = async (topicId: string) => {
+    if (!confirm('Delete this topic?')) return;
+    try {
+      setError(null);
+      await deleteTopic(topicId);
+      if (selectedSubjectId) fetchTopics(selectedSubjectId);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to delete topic');
     }
   };
 
@@ -253,31 +347,52 @@ const ExamsView: React.FC = () => {
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {subjects.map((s) => (
-                  <button
+                  <div
                     key={s._id}
-                    onClick={() => goToTopics(s)}
-                    className="modern-card p-5 text-left group hover:border-indigo-500/30 transition-all"
+                    className="modern-card p-5 text-left group hover:border-indigo-500/30 transition-all flex flex-col"
                   >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-semibold text-white truncate">{s.name}</span>
-                      <span className="text-indigo-400 text-sm font-medium">{s.progress}%</span>
+                    <button
+                      onClick={() => goToTopics(s)}
+                      className="flex-1 text-left min-w-0"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-semibold text-white truncate">{s.name}</span>
+                        <span className="text-indigo-400 text-sm font-medium">{s.progress}%</span>
+                      </div>
+                      <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all"
+                          style={{ width: `${s.progress}%` }}
+                        />
+                      </div>
+                    </button>
+                    <div className="flex gap-2 mt-3 pt-3 border-t border-white/5" onClick={(e) => e.stopPropagation()}>
+                      <button
+                        onClick={() => { setEditingSubject(s); setIsSubjectFormOpen(true); }}
+                        className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-indigo-400 transition-colors"
+                        title="Edit"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteSubject(s._id)}
+                        className="p-2 rounded-lg bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 transition-colors"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
-                    <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all"
-                        style={{ width: `${s.progress}%` }}
-                      />
-                    </div>
-                  </button>
+                  </div>
                 ))}
               </div>
             )}
 
             {isSubjectFormOpen && (
               <SubjectFormModal
-                onClose={() => setIsSubjectFormOpen(false)}
-                onSubmit={handleCreateSubject}
+                onClose={() => { setIsSubjectFormOpen(false); setEditingSubject(null); }}
+                onSubmit={editingSubject ? handleUpdateSubject : handleCreateSubject}
                 isLoading={isSubmitting}
+                subject={editingSubject}
               />
             )}
           </>
@@ -327,7 +442,7 @@ const ExamsView: React.FC = () => {
                       <p className="font-medium text-white truncate">{t.name}</p>
                       <p className="text-sm text-gray-400 mt-0.5">{t.progress}% complete</p>
                     </div>
-                    <div className="flex flex-wrap gap-3 sm:gap-4">
+                    <div className="flex flex-wrap items-center gap-3 sm:gap-4">
                       {(['study', 'rev1', 'rev2', 'rev3'] as const).map((key) => {
                         const label = key === 'study' ? 'Study' : `Rev ${key.slice(-1)}`;
                         const checked = t[key];
@@ -346,6 +461,22 @@ const ExamsView: React.FC = () => {
                           </button>
                         );
                       })}
+                      <div className="flex gap-2 ml-auto sm:ml-0">
+                        <button
+                          onClick={() => { setEditingTopic(t); setIsTopicFormOpen(true); }}
+                          className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-indigo-400 transition-colors"
+                          title="Edit"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteTopic(t._id)}
+                          className="p-2 rounded-lg bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -354,9 +485,10 @@ const ExamsView: React.FC = () => {
 
             {isTopicFormOpen && (
               <TopicFormModal
-                onClose={() => setIsTopicFormOpen(false)}
-                onSubmit={handleCreateTopic}
+                onClose={() => { setIsTopicFormOpen(false); setEditingTopic(null); }}
+                onSubmit={editingTopic ? handleUpdateTopic : handleCreateTopic}
                 isLoading={isSubmitting}
+                topic={editingTopic}
               />
             )}
           </>
@@ -409,39 +541,57 @@ const ExamsView: React.FC = () => {
           }`}
         >
           {exams.map((exam) => (
-            <button
+            <div
               key={exam._id}
-              onClick={() => goToSubjects(exam)}
-              className="modern-card p-6 text-left group hover:border-indigo-500/30 transition-all"
+              className="modern-card p-6 text-left group hover:border-indigo-500/30 transition-all flex flex-col"
             >
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-600/20 flex items-center justify-center">
-                  <GraduationCap className="w-5 h-5 text-indigo-400" />
+              <button onClick={() => goToSubjects(exam)} className="flex-1 text-left min-w-0">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-600/20 flex items-center justify-center">
+                    <GraduationCap className="w-5 h-5 text-indigo-400" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-white truncate">{exam.name}</h3>
+                    {exam.examDate && (
+                      <p className="text-sm text-gray-400">{formatDate(exam.examDate)}</p>
+                    )}
+                  </div>
+                  <span className="text-indigo-400 text-sm font-bold">{exam.progress}%</span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-white truncate">{exam.name}</h3>
-                  {exam.examDate && (
-                    <p className="text-sm text-gray-400">{formatDate(exam.examDate)}</p>
-                  )}
+                <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all"
+                    style={{ width: `${exam.progress}%` }}
+                  />
                 </div>
-                <span className="text-indigo-400 text-sm font-bold">{exam.progress}%</span>
+              </button>
+              <div className="flex gap-2 mt-3 pt-3 border-t border-white/5" onClick={(e) => e.stopPropagation()}>
+                <button
+                  onClick={() => { setEditingExam(exam); setIsExamFormOpen(true); }}
+                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-indigo-400 transition-colors"
+                  title="Edit"
+                >
+                  <Edit2 className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => handleDeleteExam(exam._id)}
+                  className="p-2 rounded-lg bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 transition-colors"
+                  title="Delete"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
               </div>
-              <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all"
-                  style={{ width: `${exam.progress}%` }}
-                />
-              </div>
-            </button>
+            </div>
           ))}
         </div>
       )}
 
       {isExamFormOpen && (
         <ExamFormModal
-          onClose={() => setIsExamFormOpen(false)}
-          onSubmit={handleCreateExam}
+          onClose={() => { setIsExamFormOpen(false); setEditingExam(null); }}
+          onSubmit={editingExam ? handleUpdateExam : handleCreateExam}
           isLoading={isSubmitting}
+          exam={editingExam}
         />
       )}
     </div>
@@ -453,12 +603,25 @@ interface ExamFormModalProps {
   onClose: () => void;
   onSubmit: (data: CreateExamData) => Promise<void>;
   isLoading: boolean;
+  exam?: Exam | null;
 }
 
-const ExamFormModal: React.FC<ExamFormModalProps> = ({ onClose, onSubmit, isLoading }) => {
-  const [name, setName] = useState('');
-  const [examDate, setExamDate] = useState('');
+const ExamFormModal: React.FC<ExamFormModalProps> = ({ onClose, onSubmit, isLoading, exam }) => {
+  const [name, setName] = useState(exam?.name ?? '');
+  const [examDate, setExamDate] = useState(
+    exam?.examDate ? new Date(exam.examDate).toISOString().slice(0, 10) : ''
+  );
   const [err, setErr] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (exam) {
+      setName(exam.name);
+      setExamDate(exam.examDate ? new Date(exam.examDate).toISOString().slice(0, 10) : '');
+    } else {
+      setName('');
+      setExamDate('');
+    }
+  }, [exam]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -482,7 +645,7 @@ const ExamFormModal: React.FC<ExamFormModalProps> = ({ onClose, onSubmit, isLoad
         className="bg-[#0F131F] rounded-2xl border border-white/10 w-full max-w-md max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl p-6"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="text-lg font-bold text-white mb-4">Add Exam</h3>
+        <h3 className="text-lg font-bold text-white mb-4">{exam ? 'Edit Exam' : 'Add Exam'}</h3>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-400 mb-1">Name</label>
@@ -517,7 +680,7 @@ const ExamFormModal: React.FC<ExamFormModalProps> = ({ onClose, onSubmit, isLoad
               disabled={isLoading}
               className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-medium hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 transition-all"
             >
-              {isLoading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Add'}
+              {isLoading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : exam ? 'Save' : 'Add'}
             </button>
           </div>
         </form>
@@ -531,11 +694,16 @@ interface SubjectFormModalProps {
   onClose: () => void;
   onSubmit: (data: CreateSubjectData) => Promise<void>;
   isLoading: boolean;
+  subject?: Subject | null;
 }
 
-const SubjectFormModal: React.FC<SubjectFormModalProps> = ({ onClose, onSubmit, isLoading }) => {
-  const [name, setName] = useState('');
+const SubjectFormModal: React.FC<SubjectFormModalProps> = ({ onClose, onSubmit, isLoading, subject }) => {
+  const [name, setName] = useState(subject?.name ?? '');
   const [err, setErr] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    setName(subject?.name ?? '');
+  }, [subject]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -559,7 +727,7 @@ const SubjectFormModal: React.FC<SubjectFormModalProps> = ({ onClose, onSubmit, 
         className="bg-[#0F131F] rounded-2xl border border-white/10 w-full max-w-md max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl p-6"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="text-lg font-bold text-white mb-4">Add Subject</h3>
+        <h3 className="text-lg font-bold text-white mb-4">{subject ? 'Edit Subject' : 'Add Subject'}</h3>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-400 mb-1">Name</label>
@@ -581,7 +749,7 @@ const SubjectFormModal: React.FC<SubjectFormModalProps> = ({ onClose, onSubmit, 
               disabled={isLoading}
               className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-medium hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 transition-all"
             >
-              {isLoading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Add'}
+              {isLoading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : subject ? 'Save' : 'Add'}
             </button>
           </div>
         </form>
@@ -595,11 +763,16 @@ interface TopicFormModalProps {
   onClose: () => void;
   onSubmit: (data: CreateTopicData) => Promise<void>;
   isLoading: boolean;
+  topic?: Topic | null;
 }
 
-const TopicFormModal: React.FC<TopicFormModalProps> = ({ onClose, onSubmit, isLoading }) => {
-  const [name, setName] = useState('');
+const TopicFormModal: React.FC<TopicFormModalProps> = ({ onClose, onSubmit, isLoading, topic }) => {
+  const [name, setName] = useState(topic?.name ?? '');
   const [err, setErr] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    setName(topic?.name ?? '');
+  }, [topic]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -623,7 +796,7 @@ const TopicFormModal: React.FC<TopicFormModalProps> = ({ onClose, onSubmit, isLo
         className="bg-[#0F131F] rounded-2xl border border-white/10 w-full max-w-md max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl p-6"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="text-lg font-bold text-white mb-4">Add Topic</h3>
+        <h3 className="text-lg font-bold text-white mb-4">{topic ? 'Edit Topic' : 'Add Topic'}</h3>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-400 mb-1">Name</label>
@@ -645,7 +818,7 @@ const TopicFormModal: React.FC<TopicFormModalProps> = ({ onClose, onSubmit, isLo
               disabled={isLoading}
               className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-medium hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 transition-all"
             >
-              {isLoading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Add'}
+              {isLoading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : topic ? 'Save' : 'Add'}
             </button>
           </div>
         </form>

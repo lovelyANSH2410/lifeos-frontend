@@ -54,14 +54,20 @@ export const EXAM_ENDPOINTS = {
   CREATE: '/exams',
   GET_ALL: '/exams',
   GET_BY_ID: (id: string) => `/exams/${id}`,
+  UPDATE: (id: string) => `/exams/${id}`,
+  DELETE: (id: string) => `/exams/${id}`,
   SUBJECTS: (examId: string) => ({
     CREATE: `/exams/${examId}/subjects`,
     GET_ALL: `/exams/${examId}/subjects`
   }),
+  SUBJECT_UPDATE: (subjectId: string) => `/subjects/${subjectId}`,
+  SUBJECT_DELETE: (subjectId: string) => `/subjects/${subjectId}`,
   TOPICS: (subjectId: string) => ({
     CREATE: `/subjects/${subjectId}/topics`,
     GET_ALL: `/subjects/${subjectId}/topics`
   }),
+  TOPIC_UPDATE: (topicId: string) => `/topics/${topicId}`,
+  TOPIC_DELETE: (topicId: string) => `/topics/${topicId}`,
   TOPIC_PROGRESS: (topicId: string) => `/topics/${topicId}/progress`
 };
 

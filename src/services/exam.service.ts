@@ -54,6 +54,17 @@ export const getExamById = async (examId: string): Promise<ExamResponse> => {
   return apiRequest<ExamResponse>(EXAM_ENDPOINTS.GET_BY_ID(examId));
 };
 
+export const updateExam = async (examId: string, data: CreateExamData): Promise<ExamResponse> => {
+  return apiRequest<ExamResponse>(EXAM_ENDPOINTS.UPDATE(examId), {
+    method: 'PUT',
+    body: JSON.stringify(data)
+  });
+};
+
+export const deleteExam = async (examId: string): Promise<{ success: boolean; message: string; data: null }> => {
+  return apiRequest(EXAM_ENDPOINTS.DELETE(examId), { method: 'DELETE' });
+};
+
 export const createSubject = async (examId: string, data: CreateSubjectData): Promise<SubjectResponse> => {
   return apiRequest<SubjectResponse>(EXAM_ENDPOINTS.SUBJECTS(examId).CREATE, {
     method: 'POST',
@@ -65,6 +76,17 @@ export const getSubjects = async (examId: string): Promise<SubjectsResponse> => 
   return apiRequest<SubjectsResponse>(EXAM_ENDPOINTS.SUBJECTS(examId).GET_ALL);
 };
 
+export const updateSubject = async (subjectId: string, data: CreateSubjectData): Promise<SubjectResponse> => {
+  return apiRequest<SubjectResponse>(EXAM_ENDPOINTS.SUBJECT_UPDATE(subjectId), {
+    method: 'PUT',
+    body: JSON.stringify(data)
+  });
+};
+
+export const deleteSubject = async (subjectId: string): Promise<{ success: boolean; message: string; data: null }> => {
+  return apiRequest(EXAM_ENDPOINTS.SUBJECT_DELETE(subjectId), { method: 'DELETE' });
+};
+
 export const createTopic = async (subjectId: string, data: CreateTopicData): Promise<TopicResponse> => {
   return apiRequest<TopicResponse>(EXAM_ENDPOINTS.TOPICS(subjectId).CREATE, {
     method: 'POST',
@@ -74,6 +96,17 @@ export const createTopic = async (subjectId: string, data: CreateTopicData): Pro
 
 export const getTopics = async (subjectId: string): Promise<TopicsResponse> => {
   return apiRequest<TopicsResponse>(EXAM_ENDPOINTS.TOPICS(subjectId).GET_ALL);
+};
+
+export const updateTopic = async (topicId: string, data: CreateTopicData): Promise<TopicResponse> => {
+  return apiRequest<TopicResponse>(EXAM_ENDPOINTS.TOPIC_UPDATE(topicId), {
+    method: 'PUT',
+    body: JSON.stringify(data)
+  });
+};
+
+export const deleteTopic = async (topicId: string): Promise<{ success: boolean; message: string; data: null }> => {
+  return apiRequest(EXAM_ENDPOINTS.TOPIC_DELETE(topicId), { method: 'DELETE' });
 };
 
 export const updateTopicProgress = async (
