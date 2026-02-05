@@ -71,6 +71,14 @@ export const EXAM_ENDPOINTS = {
   TOPIC_PROGRESS: (topicId: string) => `/topics/${topicId}/progress`
 };
 
+// Study Event endpoints
+export const STUDY_EVENT_ENDPOINTS = {
+  CREATE: '/study-events',
+  GET_ALL: '/study-events',
+  GET_TODAY: '/study-events/today',
+  COMPLETE: (eventId: string) => `/study-events/${eventId}/complete`
+};
+
 // Vault endpoints
 export const VAULT_ENDPOINTS = {
   CREATE: '/vault',

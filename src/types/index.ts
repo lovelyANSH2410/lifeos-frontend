@@ -98,6 +98,59 @@ export interface TopicsResponse {
   data: Topic[];
 }
 
+// Study Event types
+export interface StudyEventRecurrence {
+  type: 'daily' | 'weekly' | 'custom';
+  daysOfWeek: number[];
+}
+
+export interface StudyEvent {
+  _id: string;
+  userId: string;
+  title: string;
+  date?: string;
+  isRecurring: boolean;
+  recurrence?: StudyEventRecurrence;
+  examId?: string;
+  subjectId?: string;
+  topicId?: string;
+  completed?: boolean;
+  createdAt?: string;
+}
+
+export interface CreateStudyEventData {
+  title: string;
+  date?: string;
+  isRecurring?: boolean;
+  recurrence?: StudyEventRecurrence;
+  examId?: string;
+  subjectId?: string;
+  topicId?: string;
+}
+
+export interface StudyEventResponse {
+  success: boolean;
+  message: string;
+  data: StudyEvent;
+}
+
+export interface StudyEventsResponse {
+  success: boolean;
+  message: string;
+  data: StudyEvent[];
+}
+
+export interface StudyEventLogResponse {
+  success: boolean;
+  message: string;
+  data: {
+    _id: string;
+    eventId: string;
+    date: string;
+    completed: boolean;
+  };
+}
+
 export type Plan = 'Free' | 'Couple' | 'Pro';
 
 // User Subscription types
