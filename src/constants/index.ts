@@ -79,6 +79,16 @@ export const STUDY_EVENT_ENDPOINTS = {
   COMPLETE: (eventId: string) => `/study-events/${eventId}/complete`
 };
 
+// Doubt endpoints
+export const DOUBT_ENDPOINTS = {
+  CREATE: (subjectId: string) => `/subjects/${subjectId}/doubts`,
+  GET_BY_SUBJECT: (subjectId: string) => `/subjects/${subjectId}/doubts`,
+  GET_BY_ID: (doubtId: string) => `/doubts/${doubtId}`,
+  UPDATE: (doubtId: string) => `/doubts/${doubtId}`,
+  RESOLVE: (doubtId: string) => `/doubts/${doubtId}/resolve`,
+  DELETE: (doubtId: string) => `/doubts/${doubtId}`
+};
+
 // Vault endpoints
 export const VAULT_ENDPOINTS = {
   CREATE: '/vault',
