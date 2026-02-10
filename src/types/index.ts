@@ -42,6 +42,52 @@ export interface Topic {
   createdAt?: string;
 }
 
+// Doubt types (for Exam Doubts feature)
+export type DoubtPriority = 'low' | 'medium' | 'high';
+export type DoubtStatus = 'open' | 'resolved';
+
+export interface DoubtImage {
+  url: string;
+  publicId: string;
+}
+
+export interface Doubt {
+  _id: string;
+  userId: string;
+  examId: string;
+  subjectId: string;
+  topicId?: string;
+  title: string;
+  description?: string;
+  images: DoubtImage[];
+  priority: DoubtPriority;
+  status: DoubtStatus;
+  resolutionNote?: string;
+  resolvedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateDoubtData {
+  title: string;
+  description?: string;
+  topicId?: string;
+  priority?: DoubtPriority;
+  images?: DoubtImage[];
+}
+
+export interface UpdateDoubtData {
+  title?: string;
+  description?: string;
+  topicId?: string | null;
+  priority?: DoubtPriority;
+  images?: DoubtImage[];
+}
+
+export interface ResolveDoubtData {
+  resolutionNote?: string;
+}
+
 export interface CreateExamData {
   name: string;
   examDate?: string;
@@ -96,6 +142,18 @@ export interface TopicsResponse {
   success: boolean;
   message: string;
   data: Topic[];
+}
+
+export interface DoubtResponse {
+  success: boolean;
+  message: string;
+  data: Doubt;
+}
+
+export interface DoubtsResponse {
+  success: boolean;
+  message: string;
+  data: Doubt[];
 }
 
 // Study Event types

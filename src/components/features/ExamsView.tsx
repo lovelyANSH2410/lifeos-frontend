@@ -17,6 +17,7 @@ import {
   CheckCircle2,
   Circle
 } from 'lucide-react';
+import DoubtsTab from '@/components/features/DoubtsTab';
 import {
   createExam,
   getExams,
@@ -52,6 +53,7 @@ import type {
 
 type ViewScreen = 'exams' | 'subjects' | 'topics';
 type MainTab = 'exams' | 'events';
+type SubjectDetailTab = 'topics' | 'doubts';
 
 const ExamsView: React.FC = () => {
   const screenSize = useScreenSize();
@@ -61,6 +63,8 @@ const ExamsView: React.FC = () => {
   const [selectedExamName, setSelectedExamName] = useState<string>('');
   const [selectedSubjectId, setSelectedSubjectId] = useState<string | null>(null);
   const [selectedSubjectName, setSelectedSubjectName] = useState<string>('');
+  const [subjectDetailTab, setSubjectDetailTab] =
+    useState<SubjectDetailTab>('topics');
 
   const [exams, setExams] = useState<Exam[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
@@ -296,6 +300,7 @@ const ExamsView: React.FC = () => {
     setSelectedSubjectName(subject.name);
     setView('topics');
     setIsLoading(true);
+    setSubjectDetailTab('topics');
   };
 
   const goBackToExams = () => {
@@ -528,92 +533,142 @@ const ExamsView: React.FC = () => {
           </>
         )}
 
-        {view === 'topics' && (
+        {view === 'topics' && selectedSubjectId && (
           <>
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <h2 className="text-xl sm:text-2xl font-bold text-white">Topics</h2>
-              <button
-                onClick={() => setIsTopicFormOpen(true)}
-                className="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-lg shadow-indigo-500/20"
-              >
-                <Plus className="w-4 h-4" />
-                Add Topic
-              </button>
-            </div>
-            {isLoading && topics.length === 0 ? (
-              <div className="flex justify-center py-20">
-                <Loader2 className="w-8 h-8 animate-spin text-indigo-400" />
+              <div className="flex flex-col gap-2">
+                <h2 className="text-xl sm:text-2xl font-bold text-white">Subject details</h2>
+                <div className="flex gap-2 bg-[#151B28] rounded-xl p-1 border border-white/5 w-fit">
+                  <button
+                    onClick={() => setSubjectDetailTab('topics')}
+                    className={`px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all ${
+                      subjectDetailTab === 'topics'
+                        ? 'bg-indigo-600 text-white shadow-lg'
+                        : 'text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    Topics
+                  </button>
+                  <button
+                    onClick={() => setSubjectDetailTab('doubts')}
+                    className={`px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all ${
+                      subjectDetailTab === 'doubts'
+                        ? 'bg-indigo-600 text-white shadow-lg'
+                        : 'text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    Doubts
+                  </button>
+                </div>
               </div>
-            ) : topics.length === 0 ? (
-              <div className="border-2 border-dashed border-gray-800 rounded-2xl flex flex-col items-center justify-center min-h-[200px] text-gray-500">
-                <FileText className="w-10 h-10 mb-3 opacity-50" />
-                <p className="font-medium">No topics yet</p>
+              {subjectDetailTab === 'topics' && (
                 <button
                   onClick={() => setIsTopicFormOpen(true)}
-                  className="mt-3 text-indigo-400 hover:text-indigo-300 text-sm font-medium"
+                  className="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-lg shadow-indigo-500/20"
                 >
-                  Add your first topic
+                  <Plus className="w-4 h-4" />
+                  Add Topic
                 </button>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {topics.map((t) => (
-                  <div
-                    key={t._id}
-                    className="modern-card p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-white truncate">{t.name}</p>
-                      <p className="text-sm text-gray-400 mt-0.5">{t.progress}% complete</p>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-                      {(['study', 'rev1', 'rev2', 'rev3'] as const).map((key) => {
-                        const label = key === 'study' ? 'Study' : `Rev ${key.slice(-1)}`;
-                        const checked = t[key];
-                        return (
-                          <button
-                            key={key}
-                            onClick={() => handleTopicProgressToggle(t, key)}
-                            className="flex items-center gap-2 text-sm"
-                          >
-                            {checked ? (
-                              <CheckSquare className="w-5 h-5 text-indigo-400" />
-                            ) : (
-                              <Square className="w-5 h-5 text-gray-500 hover:text-gray-400" />
-                            )}
-                            <span className={checked ? 'text-indigo-400' : 'text-gray-400'}>{label}</span>
-                          </button>
-                        );
-                      })}
-                      <div className="flex gap-2 ml-auto sm:ml-0">
-                        <button
-                          onClick={() => { setEditingTopic(t); setIsTopicFormOpen(true); }}
-                          className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-indigo-400 transition-colors"
-                          title="Edit"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteTopic(t._id)}
-                          className="p-2 rounded-lg bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 transition-colors"
-                          title="Delete"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
+              )}
+            </div>
+
+            {subjectDetailTab === 'topics' && (
+              <>
+                {isLoading && topics.length === 0 ? (
+                  <div className="flex justify-center py-20">
+                    <Loader2 className="w-8 h-8 animate-spin text-indigo-400" />
                   </div>
-                ))}
-              </div>
+                ) : topics.length === 0 ? (
+                  <div className="border-2 border-dashed border-gray-800 rounded-2xl flex flex-col items-center justify-center min-h-[200px] text-gray-500">
+                    <FileText className="w-10 h-10 mb-3 opacity-50" />
+                    <p className="font-medium">No topics yet</p>
+                    <button
+                      onClick={() => setIsTopicFormOpen(true)}
+                      className="mt-3 text-indigo-400 hover:text-indigo-300 text-sm font-medium"
+                    >
+                      Add your first topic
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {topics.map((t) => (
+                      <div
+                        key={t._id}
+                        className="modern-card p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-white truncate">{t.name}</p>
+                          <p className="text-sm text-gray-400 mt-0.5">
+                            {t.progress}% complete
+                          </p>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+                          {(['study', 'rev1', 'rev2', 'rev3'] as const).map((key) => {
+                            const label =
+                              key === 'study' ? 'Study' : `Rev ${key.slice(-1)}`;
+                            const checked = t[key];
+                            return (
+                              <button
+                                key={key}
+                                onClick={() => handleTopicProgressToggle(t, key)}
+                                className="flex items-center gap-2 text-sm"
+                              >
+                                {checked ? (
+                                  <CheckSquare className="w-5 h-5 text-indigo-400" />
+                                ) : (
+                                  <Square className="w-5 h-5 text-gray-500 hover:text-gray-400" />
+                                )}
+                                <span
+                                  className={
+                                    checked ? 'text-indigo-400' : 'text-gray-400'
+                                  }
+                                >
+                                  {label}
+                                </span>
+                              </button>
+                            );
+                          })}
+                          <div className="flex gap-2 ml-auto sm:ml-0">
+                            <button
+                              onClick={() => {
+                                setEditingTopic(t);
+                                setIsTopicFormOpen(true);
+                              }}
+                              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-indigo-400 transition-colors"
+                              title="Edit"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteTopic(t._id)}
+                              className="p-2 rounded-lg bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 transition-colors"
+                              title="Delete"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {isTopicFormOpen && (
+                  <TopicFormModal
+                    onClose={() => {
+                      setIsTopicFormOpen(false);
+                      setEditingTopic(null);
+                    }}
+                    onSubmit={editingTopic ? handleUpdateTopic : handleCreateTopic}
+                    isLoading={isSubmitting}
+                    topic={editingTopic}
+                  />
+                )}
+              </>
             )}
 
-            {isTopicFormOpen && (
-              <TopicFormModal
-                onClose={() => { setIsTopicFormOpen(false); setEditingTopic(null); }}
-                onSubmit={editingTopic ? handleUpdateTopic : handleCreateTopic}
-                isLoading={isSubmitting}
-                topic={editingTopic}
-              />
+            {subjectDetailTab === 'doubts' && (
+              <DoubtsTab subjectId={selectedSubjectId} topics={topics} />
             )}
           </>
         )}
