@@ -44,11 +44,21 @@ const apiRequest = async <T>(
     headers,
   });
 
-  const data = await response.json();
+  let data;
+  try {
+    data = await response.json();
+  } catch (e) {
+    // If response is not JSON, get text
+    const text = await response.text();
+    throw new Error(text || `HTTP ${response.status}: ${response.statusText}`);
+  }
 
   if (!response.ok) {
+    // Preserve the full error object for better error handling
     const error: ApiError = data;
-    throw new Error(error.message || 'An error occurred');
+    const errorObj = new Error(error.message || 'An error occurred');
+    (errorObj as any).response = data; // Attach full response for error extraction
+    throw errorObj;
   }
 
   return data as T;

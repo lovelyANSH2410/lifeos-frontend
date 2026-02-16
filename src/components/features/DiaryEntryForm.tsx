@@ -1,7 +1,12 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Upload, Image as ImageIcon, Calendar, Type, FileText, Smile } from 'lucide-react';
 import type { CreateDiaryEntryData, DiaryEntry } from '@/types';
+import { useSubscriptionLimit } from '@/hooks/useSubscriptionLimit';
+import { useToast } from '@/contexts/ToastContext';
+import { extractErrorMessage, isSubscriptionLimitError } from '@/utils/error.util';
+import UpgradePrompt from '@/components/common/UpgradePrompt';
+import { Tab } from '@/types';
 
 interface DiaryEntryFormProps {
   isOpen: boolean;
@@ -9,6 +14,7 @@ interface DiaryEntryFormProps {
   onSubmit: (data: CreateDiaryEntryData) => Promise<void>;
   entry?: DiaryEntry | null;
   isLoading?: boolean;
+  onNavigateToPlans?: () => void; // Callback to navigate to subscription plans
 }
 
 const moods = [
@@ -27,8 +33,18 @@ const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
   onClose,
   onSubmit,
   entry,
-  isLoading = false
+  isLoading = false,
+  onNavigateToPlans
 }) => {
+  // Only fetch limit data when form is open
+  const { limit, currentCount, canCreate, isLoading: limitLoading, displayName } = useSubscriptionLimit('diary', isOpen);
+  const { showError, showUpgrade } = useToast();
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+
+  // Debug: Monitor limit values and upgrade prompt state
+  console.log('Limit check:', { limit, currentCount, canCreate, limitLoading, displayName });
+  console.log('showUpgradePrompt state:', showUpgradePrompt);
+  
   const [formData, setFormData] = useState({
     title: entry?.title || '',
     content: entry?.content || '',
@@ -42,7 +58,10 @@ const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  if (!isOpen) return null;
+  // Reset upgrade prompt when form opens or closes
+  useEffect(() => {
+    setShowUpgradePrompt(false);
+  }, [isOpen]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -96,6 +115,19 @@ const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Wait for limit check to complete before validating
+    if (limitLoading) {
+      // Still loading limit data, wait for it to complete
+      // Don't block submission during loading to avoid UX issues
+      console.log('Limit check still loading, proceeding with submission...');
+    }
+    
+    // Check limit before submission (only for new entries)
+    if (!entry && !limitLoading && limit > 0 && !canCreate) {
+      setShowUpgradePrompt(true);
+      return;
+    }
+    
     if (!formData.content.trim()) {
       alert('Content is required');
       return;
@@ -127,8 +159,17 @@ const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
       setSelectedImages([]);
       setImagePreviews([]);
       onClose();
-    } catch (error) {
-      console.error('Error submitting entry:', error);
+    } catch (error: any) {
+      const errorMessage = extractErrorMessage(error);
+      
+      // Check if error is about subscription limit
+      if (isSubscriptionLimitError(error)) {
+        showUpgrade(errorMessage);
+        setShowUpgradePrompt(true);
+      } else {
+        showError(errorMessage);
+        console.error('Error submitting entry:', error);
+      }
     }
   };
 
@@ -302,9 +343,26 @@ const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
     </div>
   );
 
+  // Only render when form is open
   if (!isOpen) return null;
 
-  return createPortal(modalContent, document.body);
+  return (
+    <>
+      {/* Show upgrade prompt OR diary form, never both */}
+      {showUpgradePrompt ? (
+        <UpgradePrompt
+          isOpen={showUpgradePrompt}
+          onClose={() => setShowUpgradePrompt(false)}
+          featureName={displayName}
+          currentCount={currentCount}
+          limit={limit}
+          onUpgrade={onNavigateToPlans}
+        />
+      ) : (
+        createPortal(modalContent, document.body)
+      )}
+    </>
+  );
 };
 
 export default DiaryEntryForm;

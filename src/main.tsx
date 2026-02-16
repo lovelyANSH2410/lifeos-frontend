@@ -3,6 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { ToastProvider } from './contexts/ToastContext';
 import App from './App';
 import LandingPage from './landingPage/LandingPage';
 
@@ -19,7 +20,9 @@ root.render(
       <Route path="/" element={<LandingPage />} />
       <Route path="/dashboard/*" element={
         <AuthProvider>
-          <App />
+          <ToastProvider>
+            <App />
+          </ToastProvider>
         </AuthProvider>
       } />
     </Routes>

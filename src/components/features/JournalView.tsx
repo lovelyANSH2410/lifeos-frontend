@@ -3,6 +3,7 @@ import { Camera, Calendar, BookOpen, Trash2, Loader2, AlertCircle, Image as Imag
 import { createDiaryEntry, getDiaryEntries, archiveDiaryEntry } from '@/services/diary.service';
 import { useScreenSize } from '@/hooks/useScreenSize';
 import type { DiaryEntry, CreateDiaryEntryData } from '@/types';
+import { Tab } from '@/types';
 import DiaryEntryForm from './DiaryEntryForm';
 
 const moodEmojis: Record<string, string> = {
@@ -27,7 +28,11 @@ const moodLabels: Record<string, string> = {
   neutral: 'Neutral'
 };
 
-const JournalView: React.FC = () => {
+interface JournalViewProps {
+  setActiveTab?: (tab: Tab) => void;
+}
+
+const JournalView: React.FC<JournalViewProps> = ({ setActiveTab }) => {
   const [entries, setEntries] = useState<DiaryEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -319,6 +324,7 @@ const JournalView: React.FC = () => {
         onClose={() => setIsFormOpen(false)}
         onSubmit={handleSubmit}
         isLoading={isSubmitting}
+        onNavigateToPlans={setActiveTab ? () => setActiveTab(Tab.SubscriptionPlans) : undefined}
       />
 
     </div>

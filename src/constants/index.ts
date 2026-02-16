@@ -36,7 +36,9 @@ export const SUBSCRIPTION_ENDPOINTS = {
 export const USER_SUBSCRIPTION_ENDPOINTS = {
   GET: '/subscription',
   UPGRADE: '/subscription/upgrade',
-  CANCEL: '/subscription/cancel'
+  CANCEL: '/subscription/cancel',
+  PAYMENT_CREATE: '/subscription/payment/create',
+  PAYMENT_VERIFY: '/subscription/payment/verify'
 };
 
 // Trip endpoints

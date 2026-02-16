@@ -3,6 +3,8 @@ import { Heart, Gift, MapPin, ExternalLink, Plus, Coffee, Home, Loader2, AlertCi
 import { createGiftIdea, getGiftIdeas, updateGiftIdea, deleteGiftIdea } from '@/services/gifting.service';
 import { useAuth } from '@/contexts/AuthContext';
 import { useScreenSize } from '@/hooks/useScreenSize';
+import { useToast } from '@/contexts/ToastContext';
+import { extractErrorMessage, isSubscriptionLimitError } from '@/utils/error.util';
 import type { GiftIdea, CreateGiftIdeaData } from '@/types';
 import GiftIdeaForm from './GiftIdeaForm';
 
@@ -26,6 +28,7 @@ const typeIcons: Record<string, any> = {
 
 const DateNightView: React.FC = () => {
   const { user } = useAuth();
+  const { showError, showUpgrade } = useToast();
   const defaultCurrency = user?.currency || 'USD';
   
   const [ideas, setIdeas] = useState<GiftIdea[]>([]);
@@ -68,8 +71,18 @@ const DateNightView: React.FC = () => {
       setIsFormOpen(false);
       fetchIdeas();
     } catch (err: any) {
-      setError(err.message || 'Failed to create idea');
-      throw err;
+      const errorMessage = extractErrorMessage(err);
+      
+      // Show toast for subscription limit errors
+      if (isSubscriptionLimitError(err)) {
+        showUpgrade(errorMessage);
+        // Don't set error state - toast is enough
+      } else {
+        showError(errorMessage);
+        setError(errorMessage); // Only set error for non-limit errors
+      }
+      
+      throw err; // Re-throw to let form handle it
     } finally {
       setIsSubmitting(false);
     }
@@ -86,8 +99,18 @@ const DateNightView: React.FC = () => {
       setEditingIdea(null);
       fetchIdeas();
     } catch (err: any) {
-      setError(err.message || 'Failed to update idea');
-      throw err;
+      const errorMessage = extractErrorMessage(err);
+      
+      // Show toast for errors
+      if (isSubscriptionLimitError(err)) {
+        showUpgrade(errorMessage);
+        // Don't set error state - toast is enough
+      } else {
+        showError(errorMessage);
+        setError(errorMessage); // Only set error for non-limit errors
+      }
+      
+      throw err; // Re-throw to let form handle it
     } finally {
       setIsSubmitting(false);
     }
