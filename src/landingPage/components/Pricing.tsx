@@ -69,9 +69,9 @@ const Pricing = () => {
 
                 {/* Header */}
                 <div className="text-center mb-16">
-                    <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Simple pricing for your entire life.</h2>
+                    <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">One place for your entire life.</h2>
                     <p className="text-slate-400 text-lg max-w-2xl mx-auto mb-10">
-                        One calm app to manage money, plans, ideas, memories, and daily life.
+                        One calm app for money, plans, ideas, memories, and daily life.
                     </p>
 
                     {/* Toggle */}
@@ -97,8 +97,8 @@ const Pricing = () => {
                         <div
                             key={i}
                             className={`relative p-8 rounded-3xl border transition-all duration-300 ${plan.highlight
-                                    ? 'bg-gradient-to-b from-violet-900/20 to-[#0F121E] border-violet-500/50 shadow-2xl shadow-violet-900/10 scale-100 md:scale-105 z-10'
-                                    : 'bg-[#0F121E] border-white/5 hover:border-white/10'
+                                ? 'bg-gradient-to-b from-violet-900/20 to-[#0F121E] border-violet-500/50 shadow-2xl shadow-violet-900/10 scale-100 md:scale-105 z-10'
+                                : 'bg-[#0F121E] border-white/5 hover:border-white/10'
                                 }`}
                         >
                             {plan.highlight && (
@@ -132,8 +132,8 @@ const Pricing = () => {
                             <a
                                 href="/dashboard"
                                 className={`w-full block text-center py-3 rounded-xl font-semibold transition-all ${plan.highlight
-                                        ? 'bg-white text-slate-950 hover:bg-slate-200 shadow-lg shadow-white/5'
-                                        : 'bg-white/5 text-white hover:bg-white/10'
+                                    ? 'bg-white text-slate-950 hover:bg-slate-200 shadow-lg shadow-white/5'
+                                    : 'bg-white/5 text-white hover:bg-white/10'
                                     }`}
                             >
                                 {plan.cta}

@@ -1,0 +1,120 @@
+import { API_BASE_URL, EXAM_ENDPOINTS, STORAGE_KEYS } from '@/constants';
+import type {
+  Exam,
+  Subject,
+  Topic,
+  CreateExamData,
+  CreateSubjectData,
+  CreateTopicData,
+  UpdateTopicProgressData,
+  ExamResponse,
+  ExamsResponse,
+  SubjectResponse,
+  SubjectsResponse,
+  TopicResponse,
+  TopicsResponse,
+  ApiError
+} from '@/types';
+
+const getAuthToken = (): string | null => {
+  return localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+};
+
+const apiRequest = async <T>(endpoint: string, options: RequestInit = {}): Promise<T> => {
+  const token = getAuthToken();
+  if (!token) throw new Error('Authentication required');
+
+  const headers: HeadersInit = { ...options.headers };
+  if (!(options.body instanceof FormData)) {
+    (headers as Record<string, string>)['Content-Type'] = 'application/json';
+  }
+  (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
+
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers });
+  const data = await response.json();
+  if (!response.ok) {
+    const err: ApiError = data;
+    throw new Error(err.message || 'An error occurred');
+  }
+  return data as T;
+};
+
+export const createExam = async (data: CreateExamData): Promise<ExamResponse> => {
+  return apiRequest<ExamResponse>(EXAM_ENDPOINTS.CREATE, {
+    method: 'POST',
+    body: JSON.stringify(data)
+  });
+};
+
+export const getExams = async (): Promise<ExamsResponse> => {
+  return apiRequest<ExamsResponse>(EXAM_ENDPOINTS.GET_ALL);
+};
+
+export const getExamById = async (examId: string): Promise<ExamResponse> => {
+  return apiRequest<ExamResponse>(EXAM_ENDPOINTS.GET_BY_ID(examId));
+};
+
+export const updateExam = async (examId: string, data: CreateExamData): Promise<ExamResponse> => {
+  return apiRequest<ExamResponse>(EXAM_ENDPOINTS.UPDATE(examId), {
+    method: 'PUT',
+    body: JSON.stringify(data)
+  });
+};
+
+export const deleteExam = async (examId: string): Promise<{ success: boolean; message: string; data: null }> => {
+  return apiRequest(EXAM_ENDPOINTS.DELETE(examId), { method: 'DELETE' });
+};
+
+export const createSubject = async (examId: string, data: CreateSubjectData): Promise<SubjectResponse> => {
+  return apiRequest<SubjectResponse>(EXAM_ENDPOINTS.SUBJECTS(examId).CREATE, {
+    method: 'POST',
+    body: JSON.stringify(data)
+  });
+};
+
+export const getSubjects = async (examId: string): Promise<SubjectsResponse> => {
+  return apiRequest<SubjectsResponse>(EXAM_ENDPOINTS.SUBJECTS(examId).GET_ALL);
+};
+
+export const updateSubject = async (subjectId: string, data: CreateSubjectData): Promise<SubjectResponse> => {
+  return apiRequest<SubjectResponse>(EXAM_ENDPOINTS.SUBJECT_UPDATE(subjectId), {
+    method: 'PUT',
+    body: JSON.stringify(data)
+  });
+};
+
+export const deleteSubject = async (subjectId: string): Promise<{ success: boolean; message: string; data: null }> => {
+  return apiRequest(EXAM_ENDPOINTS.SUBJECT_DELETE(subjectId), { method: 'DELETE' });
+};
+
+export const createTopic = async (subjectId: string, data: CreateTopicData): Promise<TopicResponse> => {
+  return apiRequest<TopicResponse>(EXAM_ENDPOINTS.TOPICS(subjectId).CREATE, {
+    method: 'POST',
+    body: JSON.stringify(data)
+  });
+};
+
+export const getTopics = async (subjectId: string): Promise<TopicsResponse> => {
+  return apiRequest<TopicsResponse>(EXAM_ENDPOINTS.TOPICS(subjectId).GET_ALL);
+};
+
+export const updateTopic = async (topicId: string, data: CreateTopicData): Promise<TopicResponse> => {
+  return apiRequest<TopicResponse>(EXAM_ENDPOINTS.TOPIC_UPDATE(topicId), {
+    method: 'PUT',
+    body: JSON.stringify(data)
+  });
+};
+
+export const deleteTopic = async (topicId: string): Promise<{ success: boolean; message: string; data: null }> => {
+  return apiRequest(EXAM_ENDPOINTS.TOPIC_DELETE(topicId), { method: 'DELETE' });
+};
+
+export const updateTopicProgress = async (
+  topicId: string,
+  data: UpdateTopicProgressData
+): Promise<TopicResponse> => {
+  return apiRequest<TopicResponse>(EXAM_ENDPOINTS.TOPIC_PROGRESS(topicId), {
+    method: 'PUT',
+    body: JSON.stringify(data)
+  });
+};

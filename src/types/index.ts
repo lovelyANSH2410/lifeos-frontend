@@ -6,9 +6,207 @@ export enum Tab {
   Vault = 'Vault',
   Subscriptions = 'Subscriptions',
   Travel = 'Travel',
+  Exams = 'Exams',
   Journal = 'Journal',
   Ideas = 'Ideas',
   SubscriptionPlans = 'SubscriptionPlans'
+}
+
+// Exam / Subject / Topic types (for Exams feature)
+export interface Exam {
+  _id: string;
+  userId: string;
+  name: string;
+  examDate?: string;
+  progress: number;
+  createdAt?: string;
+}
+
+export interface Subject {
+  _id: string;
+  examId: string;
+  name: string;
+  progress: number;
+  createdAt?: string;
+}
+
+export interface Topic {
+  _id: string;
+  subjectId: string;
+  name: string;
+  study: boolean;
+  rev1: boolean;
+  rev2: boolean;
+  rev3: boolean;
+  progress: number;
+  createdAt?: string;
+}
+
+// Doubt types (for Exam Doubts feature)
+export type DoubtPriority = 'low' | 'medium' | 'high';
+export type DoubtStatus = 'open' | 'resolved';
+
+export interface DoubtImage {
+  url: string;
+  publicId: string;
+}
+
+export interface Doubt {
+  _id: string;
+  userId: string;
+  examId: string;
+  subjectId: string;
+  topicId?: string;
+  title: string;
+  description?: string;
+  images: DoubtImage[];
+  priority: DoubtPriority;
+  status: DoubtStatus;
+  resolutionNote?: string;
+  resolvedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateDoubtData {
+  title: string;
+  description?: string;
+  topicId?: string;
+  priority?: DoubtPriority;
+  images?: DoubtImage[];
+}
+
+export interface UpdateDoubtData {
+  title?: string;
+  description?: string;
+  topicId?: string | null;
+  priority?: DoubtPriority;
+  images?: DoubtImage[];
+}
+
+export interface ResolveDoubtData {
+  resolutionNote?: string;
+}
+
+export interface CreateExamData {
+  name: string;
+  examDate?: string;
+}
+
+export interface CreateSubjectData {
+  name: string;
+}
+
+export interface CreateTopicData {
+  name: string;
+}
+
+export interface UpdateTopicProgressData {
+  study?: boolean;
+  rev1?: boolean;
+  rev2?: boolean;
+  rev3?: boolean;
+}
+
+export interface ExamResponse {
+  success: boolean;
+  message: string;
+  data: Exam;
+}
+
+export interface ExamsResponse {
+  success: boolean;
+  message: string;
+  data: Exam[];
+}
+
+export interface SubjectResponse {
+  success: boolean;
+  message: string;
+  data: Subject;
+}
+
+export interface SubjectsResponse {
+  success: boolean;
+  message: string;
+  data: Subject[];
+}
+
+export interface TopicResponse {
+  success: boolean;
+  message: string;
+  data: Topic;
+}
+
+export interface TopicsResponse {
+  success: boolean;
+  message: string;
+  data: Topic[];
+}
+
+export interface DoubtResponse {
+  success: boolean;
+  message: string;
+  data: Doubt;
+}
+
+export interface DoubtsResponse {
+  success: boolean;
+  message: string;
+  data: Doubt[];
+}
+
+// Study Event types
+export interface StudyEventRecurrence {
+  type: 'daily' | 'weekly' | 'custom';
+  daysOfWeek: number[];
+}
+
+export interface StudyEvent {
+  _id: string;
+  userId: string;
+  title: string;
+  date?: string;
+  isRecurring: boolean;
+  recurrence?: StudyEventRecurrence;
+  examId?: string;
+  subjectId?: string;
+  topicId?: string;
+  completed?: boolean;
+  createdAt?: string;
+}
+
+export interface CreateStudyEventData {
+  title: string;
+  date?: string;
+  isRecurring?: boolean;
+  recurrence?: StudyEventRecurrence;
+  examId?: string;
+  subjectId?: string;
+  topicId?: string;
+}
+
+export interface StudyEventResponse {
+  success: boolean;
+  message: string;
+  data: StudyEvent;
+}
+
+export interface StudyEventsResponse {
+  success: boolean;
+  message: string;
+  data: StudyEvent[];
+}
+
+export interface StudyEventLogResponse {
+  success: boolean;
+  message: string;
+  data: {
+    _id: string;
+    eventId: string;
+    date: string;
+    completed: boolean;
+  };
 }
 
 export type Plan = 'Free' | 'Couple' | 'Pro';

@@ -16,3 +16,5 @@ export * from './fund.service';
 export * from './debt.service';
 export * from './wishlist.service';
 export * from './moneyOverview.service';
+export * from './exam.service';
+export * from './studyEvent.service';

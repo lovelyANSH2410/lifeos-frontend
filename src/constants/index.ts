@@ -51,6 +51,46 @@ export const TRIP_ENDPOINTS = {
   SUMMARY: '/trips/summary'
 };
 
+// Exam / Subject / Topic endpoints
+export const EXAM_ENDPOINTS = {
+  CREATE: '/exams',
+  GET_ALL: '/exams',
+  GET_BY_ID: (id: string) => `/exams/${id}`,
+  UPDATE: (id: string) => `/exams/${id}`,
+  DELETE: (id: string) => `/exams/${id}`,
+  SUBJECTS: (examId: string) => ({
+    CREATE: `/exams/${examId}/subjects`,
+    GET_ALL: `/exams/${examId}/subjects`
+  }),
+  SUBJECT_UPDATE: (subjectId: string) => `/subjects/${subjectId}`,
+  SUBJECT_DELETE: (subjectId: string) => `/subjects/${subjectId}`,
+  TOPICS: (subjectId: string) => ({
+    CREATE: `/subjects/${subjectId}/topics`,
+    GET_ALL: `/subjects/${subjectId}/topics`
+  }),
+  TOPIC_UPDATE: (topicId: string) => `/topics/${topicId}`,
+  TOPIC_DELETE: (topicId: string) => `/topics/${topicId}`,
+  TOPIC_PROGRESS: (topicId: string) => `/topics/${topicId}/progress`
+};
+
+// Study Event endpoints
+export const STUDY_EVENT_ENDPOINTS = {
+  CREATE: '/study-events',
+  GET_ALL: '/study-events',
+  GET_TODAY: '/study-events/today',
+  COMPLETE: (eventId: string) => `/study-events/${eventId}/complete`
+};
+
+// Doubt endpoints
+export const DOUBT_ENDPOINTS = {
+  CREATE: (subjectId: string) => `/subjects/${subjectId}/doubts`,
+  GET_BY_SUBJECT: (subjectId: string) => `/subjects/${subjectId}/doubts`,
+  GET_BY_ID: (doubtId: string) => `/doubts/${doubtId}`,
+  UPDATE: (doubtId: string) => `/doubts/${doubtId}`,
+  RESOLVE: (doubtId: string) => `/doubts/${doubtId}/resolve`,
+  DELETE: (doubtId: string) => `/doubts/${doubtId}`
+};
+
 // Vault endpoints
 export const VAULT_ENDPOINTS = {
   CREATE: '/vault',

@@ -16,7 +16,8 @@ import {
   Users,
   Crown,
   LogOut,
-  Lightbulb
+  Lightbulb,
+  GraduationCap
 } from 'lucide-react';
 import { Tab, Plan } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
@@ -33,6 +34,7 @@ import DateNightView from '@/components/features/DateNightView';
 import MoneyView from '@/components/features/MoneyView';
 import VaultView from '@/components/features/VaultView';
 import TravelView from '@/components/features/TravelView';
+import ExamsView from '@/components/features/ExamsView';
 import SubscriptionsView from '@/components/features/SubscriptionsView';
 import SubscriptionPlansView from '@/components/features/SubscriptionPlansView';
 import JournalView from '@/components/features/JournalView';
@@ -128,6 +130,7 @@ const App: React.FC = () => {
           <SidebarItem icon={Wallet} label="Money Manager" active={activeTab === Tab.Money} onClick={() => setActiveTab(Tab.Money)} collapsed={!isSidebarOpen} />
           <SidebarItem icon={Shield} label="Vault & Docs" active={activeTab === Tab.Vault} onClick={() => setActiveTab(Tab.Vault)} collapsed={!isSidebarOpen} />
           <SidebarItem icon={Plane} label="Travel Plans" active={activeTab === Tab.Travel} onClick={() => setActiveTab(Tab.Travel)} collapsed={!isSidebarOpen} />
+          <SidebarItem icon={GraduationCap} label="Exams & Study" active={activeTab === Tab.Exams} onClick={() => setActiveTab(Tab.Exams)} collapsed={!isSidebarOpen} />
           <SidebarItem icon={Repeat} label="Subscriptions" active={activeTab === Tab.Subscriptions} onClick={() => setActiveTab(Tab.Subscriptions)} collapsed={!isSidebarOpen} />
           <SidebarItem icon={Book} label="Personal Diary" active={activeTab === Tab.Journal} onClick={() => setActiveTab(Tab.Journal)} collapsed={!isSidebarOpen} />
           <SidebarItem icon={Lightbulb} label="Idea Inbox" active={activeTab === Tab.Ideas} onClick={() => setActiveTab(Tab.Ideas)} collapsed={!isSidebarOpen} />
@@ -252,6 +255,7 @@ const App: React.FC = () => {
               {activeTab === Tab.Money && <MoneyView />}
               {activeTab === Tab.Vault && <VaultView setActiveTab={setActiveTab} />}
               {activeTab === Tab.Travel && <TravelView />}
+              {activeTab === Tab.Exams && <ExamsView />}
               {activeTab === Tab.Subscriptions && <SubscriptionsView />}
               {activeTab === Tab.SubscriptionPlans && <SubscriptionPlansView />}
               {activeTab === Tab.Journal && <JournalView setActiveTab={setActiveTab} />}

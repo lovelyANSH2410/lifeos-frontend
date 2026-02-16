@@ -12,7 +12,7 @@ const Hero = () => {
             <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
                 <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-16">
                     {/* Pill Label */}
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-violet-300 mb-8 hover:bg-white/10 transition-colors cursor-default">
+                    <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-violet-300 mb-8 hover:bg-white/10 transition-colors cursor-default tracking-wide">
                         <span className="relative flex h-2 w-2">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-500"></span>
@@ -20,36 +20,38 @@ const Hero = () => {
                         Accepting Early Access Requests
                     </div>
 
-                    <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-white mb-6 leading-[1.1]">
-                        Your life. <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-fuchsia-400 to-white">
-                            Organized.
+                    <h1 className="text-4xl sm:text-5xl md:text-[3.25rem] lg:text-6xl xl:text-[3.75rem] font-semibold tracking-tight text-white mb-6 max-w-3xl mx-auto leading-[1.2]">
+                        <span className="block">A calm place for everything,</span>
+                        <span className="mt-1 block text-transparent bg-clip-text bg-gradient-to-r from-violet-300 via-fuchsia-300 to-slate-100">
+                            you don’t want to forget.
                         </span>
                     </h1>
 
-                    <p className="text-lg md:text-xl text-slate-400 mb-10 leading-relaxed max-w-2xl">
-                        LifeOS brings your money, plans, ideas, memories, and routines into one intelligent dashboard. Stop switching between apps and start living with clarity.
+                    <p className="text-base sm:text-lg text-slate-400 font-normal mb-10 leading-relaxed max-w-xl mx-auto">
+                    LifeOS is your personal life archive.
+                    Thoughts, money, plans, memories, ideas — all in one place you’ll actually come back to. Stop scattering your life across notes, apps, screenshots, and reminders you’ll never open again.
                     </p>
 
                     <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
                         <a
                             href="/dashboard"
-                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white text-slate-950 px-8 py-3.5 rounded-full text-base font-semibold hover:bg-slate-100 transition-all hover:scale-105"
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white text-slate-950 px-8 py-3.5 rounded-full text-base font-semibold hover:bg-slate-100 transition-all hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
                         >
-                            Request Access
+                            Get Early Access
                         </a>
                         <a
                             href="#features"
-                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white/5 text-white border border-white/10 px-8 py-3.5 rounded-full text-base font-semibold hover:bg-white/10 transition-all group"
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white/5 text-white border border-white/10 px-8 py-3.5 rounded-full text-base font-semibold hover:bg-white/10 transition-all group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
                         >
-                            Explore the System
+                            See how LifeOS works
                             <ChevronRight size={16} className="text-slate-400 group-hover:text-white group-hover:translate-x-0.5 transition-transform" />
                         </a>
                     </div>
 
-                    <div className="mt-8 flex items-center gap-6 text-sm text-slate-500">
-                        <span className="flex items-center gap-1.5"><ShieldCheck size={14} />Privacy-first</span>
-                        <span className="flex items-center gap-1.5"><span className="text-yellow-500">★</span>Designed for real life</span>
+                    <div className="mt-10 flex flex-wrap items-center justify-center gap-5 sm:gap-6 text-sm text-slate-500 leading-relaxed">
+                        <span className="flex items-center gap-1.5"><ShieldCheck size={14} aria-hidden />Privacy-first</span>
+                        <span className="flex items-center gap-1.5"><span className="text-yellow-500" aria-hidden>★</span>Designed for real life</span>
+                        <span className="flex items-center gap-1.5"><span className="text-yellow-500" aria-hidden>🛡️</span>No ads. No noise. No pressure.</span>
                     </div>
                 </div>
 
@@ -62,14 +64,14 @@ const Hero = () => {
                         <MockDashboard />
 
                         {/* Floating Callouts */}
-                        <div className="absolute -right-4 md:-right-12 top-20 bg-slate-900/90 border border-white/10 p-3 rounded-lg shadow-xl backdrop-blur-md hidden md:block animate-bounce-slow">
-                            <div className="text-xs font-bold text-emerald-400 mb-1">Total Clarity</div>
-                            <div className="text-[10px] text-slate-300">Net worth updated in real-time</div>
+                        <div className="absolute -right-4 md:-right-12 top-20 bg-slate-900/90 border border-white/10 p-3.5 rounded-lg shadow-xl backdrop-blur-md hidden md:block animate-bounce-slow">
+                            <div className="text-xs font-bold text-emerald-400 mb-1 leading-tight">Total Clarity</div>
+                            <div className="text-[11px] text-slate-300 leading-relaxed">Net worth updated in real-time</div>
                         </div>
 
-                        <div className="absolute -left-4 md:-left-12 bottom-20 bg-slate-900/90 border border-white/10 p-3 rounded-lg shadow-xl backdrop-blur-md hidden md:block animate-bounce-slow delay-700">
-                            <div className="text-xs font-bold text-rose-400 mb-1">Never Forget</div>
-                            <div className="text-[10px] text-slate-300">Upcoming bills tracked auto-magically</div>
+                        <div className="absolute -left-4 md:-left-12 bottom-20 bg-slate-900/90 border border-white/10 p-3.5 rounded-lg shadow-xl backdrop-blur-md hidden md:block animate-bounce-slow delay-700">
+                            <div className="text-xs font-bold text-rose-400 mb-1 leading-tight">Never Forget</div>
+                            <div className="text-[11px] text-slate-300 leading-relaxed">Upcoming bills tracked auto-magically</div>
                         </div>
                     </div>
                 </div>
