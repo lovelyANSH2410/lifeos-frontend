@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Lightbulb, Plus, Loader2, AlertCircle, Sparkles, Filter } from 'lucide-react';
 import { createIdea, getIdeas, updateIdea, deleteIdea } from '@/services/idea.service';
 import { useScreenSize } from '@/hooks/useScreenSize';
+import { useToast } from '@/contexts/ToastContext';
+import { extractErrorMessage, isSubscriptionLimitError } from '@/utils/error.util';
 import BottomSheet from '@/components/common/BottomSheet';
 import type { Idea, CreateIdeaData } from '@/types';
 import IdeaCard from './IdeaCard';
@@ -9,6 +11,7 @@ import IdeaForm from './IdeaForm';
 import IdeaDetailModal from './IdeaDetailModal';
 
 const IdeaInboxView: React.FC = () => {
+  const { showError, showUpgrade } = useToast();
   const [ideas, setIdeas] = useState<Idea[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -62,7 +65,17 @@ const IdeaInboxView: React.FC = () => {
       setIsFormOpen(false);
       fetchIdeas(1, statusFilter);
     } catch (err: any) {
-      setError(err.message || 'Failed to create idea');
+      const errorMessage = extractErrorMessage(err);
+      
+      // Show toast for subscription limit errors
+      if (isSubscriptionLimitError(err)) {
+        showUpgrade(errorMessage);
+        // Don't set error state - toast is enough
+      } else {
+        showError(errorMessage);
+        setError(errorMessage); // Only set error for non-limit errors
+      }
+      
       throw err;
     } finally {
       setIsSubmitting(false);
@@ -84,7 +97,17 @@ const IdeaInboxView: React.FC = () => {
         setSelectedIdea(null);
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to update idea');
+      const errorMessage = extractErrorMessage(err);
+      
+      // Show toast for subscription limit errors
+      if (isSubscriptionLimitError(err)) {
+        showUpgrade(errorMessage);
+        // Don't set error state - toast is enough
+      } else {
+        showError(errorMessage);
+        setError(errorMessage); // Only set error for non-limit errors
+      }
+      
       throw err;
     } finally {
       setIsSubmitting(false);

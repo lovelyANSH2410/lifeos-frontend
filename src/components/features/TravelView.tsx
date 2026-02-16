@@ -4,6 +4,8 @@ import { createTrip, getTrips, getTripSummary, updateTrip, deleteTrip } from '@/
 import { createDiaryEntry } from '@/services/diary.service';
 import { useAuth } from '@/contexts/AuthContext';
 import { useScreenSize } from '@/hooks/useScreenSize';
+import { useToast } from '@/contexts/ToastContext';
+import { extractErrorMessage, isSubscriptionLimitError } from '@/utils/error.util';
 import type { Trip, CreateTripData, TripSummary, CreateDiaryEntryData } from '@/types';
 import TripForm from './TripForm';
 
@@ -23,6 +25,7 @@ const statusColors: Record<string, string> = {
 
 const TravelView: React.FC = () => {
   const { user } = useAuth();
+  const { showError, showUpgrade } = useToast();
   const defaultCurrency = user?.currency || 'USD';
   
   const [trips, setTrips] = useState<Trip[]>([]);
@@ -88,7 +91,17 @@ const TravelView: React.FC = () => {
       fetchTrips(1, statusFilter);
       fetchSummary();
     } catch (err: any) {
-      setError(err.message || 'Failed to create trip');
+      const errorMessage = extractErrorMessage(err);
+      
+      // Show toast for subscription limit errors
+      if (isSubscriptionLimitError(err)) {
+        showUpgrade(errorMessage);
+        // Don't set error state - toast is enough
+      } else {
+        showError(errorMessage);
+        setError(errorMessage); // Only set error for non-limit errors
+      }
+      
       throw err;
     } finally {
       setIsSubmitting(false);
@@ -107,7 +120,17 @@ const TravelView: React.FC = () => {
       fetchTrips(1, statusFilter);
       fetchSummary();
     } catch (err: any) {
-      setError(err.message || 'Failed to update trip');
+      const errorMessage = extractErrorMessage(err);
+      
+      // Show toast for subscription limit errors
+      if (isSubscriptionLimitError(err)) {
+        showUpgrade(errorMessage);
+        // Don't set error state - toast is enough
+      } else {
+        showError(errorMessage);
+        setError(errorMessage); // Only set error for non-limit errors
+      }
+      
       throw err;
     } finally {
       setIsSubmitting(false);

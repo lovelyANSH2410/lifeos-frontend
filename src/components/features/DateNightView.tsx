@@ -72,13 +72,14 @@ const DateNightView: React.FC = () => {
       fetchIdeas();
     } catch (err: any) {
       const errorMessage = extractErrorMessage(err);
-      setError(errorMessage);
       
       // Show toast for subscription limit errors
       if (isSubscriptionLimitError(err)) {
         showUpgrade(errorMessage);
+        // Don't set error state - toast is enough
       } else {
         showError(errorMessage);
+        setError(errorMessage); // Only set error for non-limit errors
       }
       
       throw err; // Re-throw to let form handle it
@@ -99,13 +100,14 @@ const DateNightView: React.FC = () => {
       fetchIdeas();
     } catch (err: any) {
       const errorMessage = extractErrorMessage(err);
-      setError(errorMessage);
       
       // Show toast for errors
       if (isSubscriptionLimitError(err)) {
         showUpgrade(errorMessage);
+        // Don't set error state - toast is enough
       } else {
         showError(errorMessage);
+        setError(errorMessage); // Only set error for non-limit errors
       }
       
       throw err; // Re-throw to let form handle it

@@ -40,6 +40,10 @@ const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
   const { limit, currentCount, canCreate, isLoading: limitLoading, displayName } = useSubscriptionLimit('diary', isOpen);
   const { showError, showUpgrade } = useToast();
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+
+  // Debug: Monitor limit values and upgrade prompt state
+  console.log('Limit check:', { limit, currentCount, canCreate, limitLoading, displayName });
+  console.log('showUpgradePrompt state:', showUpgradePrompt);
   
   const [formData, setFormData] = useState({
     title: entry?.title || '',
@@ -54,14 +58,10 @@ const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Reset upgrade prompt when form closes
+  // Reset upgrade prompt when form opens or closes
   useEffect(() => {
-    if (!isOpen) {
-      setShowUpgradePrompt(false);
-    }
+    setShowUpgradePrompt(false);
   }, [isOpen]);
-
-  if (!isOpen) return null;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -123,7 +123,6 @@ const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
     }
     
     // Check limit before submission (only for new entries)
-    // Only check if limit check is complete and user can't create more
     if (!entry && !limitLoading && limit > 0 && !canCreate) {
       setShowUpgradePrompt(true);
       return;
@@ -344,19 +343,24 @@ const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
     </div>
   );
 
+  // Only render when form is open
   if (!isOpen) return null;
 
   return (
     <>
-      {createPortal(modalContent, document.body)}
-      <UpgradePrompt
-        isOpen={showUpgradePrompt}
-        onClose={() => setShowUpgradePrompt(false)}
-        featureName={displayName}
-        currentCount={currentCount}
-        limit={limit}
-        onUpgrade={onNavigateToPlans}
-      />
+      {/* Show upgrade prompt OR diary form, never both */}
+      {showUpgradePrompt ? (
+        <UpgradePrompt
+          isOpen={showUpgradePrompt}
+          onClose={() => setShowUpgradePrompt(false)}
+          featureName={displayName}
+          currentCount={currentCount}
+          limit={limit}
+          onUpgrade={onNavigateToPlans}
+        />
+      ) : (
+        createPortal(modalContent, document.body)
+      )}
     </>
   );
 };
