@@ -17,6 +17,7 @@ interface VaultViewProps {
 const VaultView: React.FC<VaultViewProps> = ({ setActiveTab: setAppTab }) => {
   const [activeTab, setActiveTab] = useState<'creds' | 'docs'>('creds');
   const [userSubscription, setUserSubscription] = useState<any>(null);
+  const [isLoadingSubscription, setIsLoadingSubscription] = useState(true);
   const [showVaultUpgradePrompt, setShowVaultUpgradePrompt] = useState(false);
   const [showDocsUpgradePrompt, setShowDocsUpgradePrompt] = useState(false);
   
@@ -43,10 +44,14 @@ const VaultView: React.FC<VaultViewProps> = ({ setActiveTab: setAppTab }) => {
   useEffect(() => {
     const fetchSubscription = async () => {
       try {
+        setIsLoadingSubscription(true);
         const response = await getUserSubscription();
+        console.log('[VaultView] Subscription loaded:', response.data);
         setUserSubscription(response.data);
       } catch (err) {
         console.error('Error fetching subscription:', err);
+      } finally {
+        setIsLoadingSubscription(false);
       }
     };
     fetchSubscription();
@@ -279,7 +284,14 @@ const VaultView: React.FC<VaultViewProps> = ({ setActiveTab: setAppTab }) => {
   };
 
   const openCreateCredForm = () => {
-    if (!canAccessFeature(userSubscription, 'vault')) {
+    // Don't check access while subscription is still loading
+    if (isLoadingSubscription) {
+      return;
+    }
+  
+    const hasAccess = canAccessFeature(userSubscription, 'vault');
+    
+    if (!hasAccess) {
       setShowVaultUpgradePrompt(true);
       return;
     }
@@ -293,7 +305,15 @@ const VaultView: React.FC<VaultViewProps> = ({ setActiveTab: setAppTab }) => {
   };
 
   const openCreateDocForm = () => {
-    if (!canAccessFeature(userSubscription, 'documents')) {
+    
+    // Don't check access while subscription is still loading
+    if (isLoadingSubscription) {
+      return;
+    }
+    
+    const hasAccess = canAccessFeature(userSubscription, 'documents');
+    
+    if (!hasAccess) {
       setShowDocsUpgradePrompt(true);
       return;
     }
@@ -624,25 +644,29 @@ const VaultView: React.FC<VaultViewProps> = ({ setActiveTab: setAppTab }) => {
         isLoading={isSubmittingDocs}
       />
 
-      {/* Upgrade Prompts */}
-      <UpgradePrompt
-        isOpen={showVaultUpgradePrompt}
-        onClose={() => setShowVaultUpgradePrompt(false)}
-        featureName="Vault Credentials"
-        currentCount={0}
-        limit={0}
-        isFeatureBlocked={true}
-        onUpgrade={setAppTab ? () => setAppTab(Tab.SubscriptionPlans) : undefined}
-      />
-      <UpgradePrompt
-        isOpen={showDocsUpgradePrompt}
-        onClose={() => setShowDocsUpgradePrompt(false)}
-        featureName="Vault Documents"
-        currentCount={0}
-        limit={0}
-        isFeatureBlocked={true}
-        onUpgrade={setAppTab ? () => setAppTab(Tab.SubscriptionPlans) : undefined}
-      />
+      {/* Upgrade Prompts - Only render when needed */}
+      {showVaultUpgradePrompt && (
+        <UpgradePrompt
+          isOpen={showVaultUpgradePrompt}
+          onClose={() => setShowVaultUpgradePrompt(false)}
+          featureName="Vault Credentials"
+          currentCount={0}
+          limit={0}
+          isFeatureBlocked={true}
+          onUpgrade={setAppTab ? () => setAppTab(Tab.SubscriptionPlans) : undefined}
+        />
+      )}
+      {showDocsUpgradePrompt && (
+        <UpgradePrompt
+          isOpen={showDocsUpgradePrompt}
+          onClose={() => setShowDocsUpgradePrompt(false)}
+          featureName="Vault Documents"
+          currentCount={0}
+          limit={0}
+          isFeatureBlocked={true}
+          onUpgrade={setAppTab ? () => setAppTab(Tab.SubscriptionPlans) : undefined}
+        />
+      )}
     </div>
   );
 };
