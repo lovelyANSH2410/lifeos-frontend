@@ -278,7 +278,7 @@ const ExamsView: React.FC = () => {
     }
   };
 
-  const handleTopicProgressToggle = async (topic: Topic, field: 'study' | 'rev1' | 'rev2' | 'rev3') => {
+  const handleTopicProgressToggle = async (topic: Topic, field: 'study' | 'rev1' | 'rev2') => {
     const current = topic[field];
     try {
       await updateTopicProgress(topic._id, { [field]: !current });
@@ -603,7 +603,7 @@ const ExamsView: React.FC = () => {
                           </p>
                         </div>
                         <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-                          {(['study', 'rev1', 'rev2', 'rev3'] as const).map((key) => {
+                          {(['study', 'rev1', 'rev2'] as const).map((key) => {
                             const label =
                               key === 'study' ? 'Study' : `Rev ${key.slice(-1)}`;
                             const checked = t[key];
