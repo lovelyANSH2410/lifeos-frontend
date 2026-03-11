@@ -37,7 +37,6 @@ export interface Topic {
   study: boolean;
   rev1: boolean;
   rev2: boolean;
-  rev3: boolean;
   progress: number;
   createdAt?: string;
 }
@@ -105,7 +104,6 @@ export interface UpdateTopicProgressData {
   study?: boolean;
   rev1?: boolean;
   rev2?: boolean;
-  rev3?: boolean;
 }
 
 export interface ExamResponse {
